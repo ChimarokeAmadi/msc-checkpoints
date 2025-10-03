@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>My Portfolio</title>
+		<link rel="stylesheet" href="style.css" />
+	</head>
+	<body>
+		<!-- Navigation -->
+		<header>
+			<nav>
+				<ul class="nav-links">
+					<li><a href="#home">Home</a></li>
+					<li><a href="#about">About</a></li>
+					<li><a href="#work">Work</a></li>
+					<li><a href="#resume">Resume</a></li>
+					<li><a href="#contact">Contact</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<!-- Home Section -->
+		<section id="home">
+			<h1>Welcome to My Portfolio</h1>
+			<p>
+				Hi, I’m an aspiring developer passionate about building creative digital
+				experiences.
+			</p>
+
+			<!-- Embedded video -->
+			<video width="400" controls>
+				<source src="video.mp4" type="video/mp4" />
+				Your browser does not support the video tag.
+			</video>
+		</section>
+
+		<!-- About Section -->
+		<section id="about">
+			<h2>About Me</h2>
+			<p>
+				I am a self-taught developer who enjoys working with web technologies. I
+				love solving problems and creating meaningful projects.
+			</p>
+
+			<!-- Audio -->
+			<audio controls>
+				<source src="audio.mp3" type="audio/mpeg" />
+				Your browser does not support the audio element.
+			</audio>
+
+			<!-- List Example -->
+			<h3>My Skills</h3>
+			<ul>
+				<li>HTML & CSS</li>
+				<li>JavaScript</li>
+				<li>React & Next.js</li>
+				<li>Node.js</li>
+			</ul>
+		</section>
+
+		<!-- Work Section -->
+		<section id="work">
+			<h2>My Work</h2>
+			<p>Here are some sample projects I’ve worked on:</p>
+			<table border="1" cellpadding="10">
+				<tr>
+					<th>Project</th>
+					<th>Description</th>
+					<th>Link</th>
+				</tr>
+				<tr>
+					<td>Portfolio Website</td>
+					<td>A personal site to showcase my skills and work.</td>
+					<td><a href="#">View</a></td>
+				</tr>
+				<tr>
+					<td>Todo App</td>
+					<td>A task manager built with React.</td>
+					<td><a href="#">View</a></td>
+				</tr>
+			</table>
+		</section>
+
+		<!-- Resume Section -->
+		<section id="resume">
+			<h2>Resume</h2>
+			<p>You can download my resume below:</p>
+			<a href="resume.pdf" download>Download Resume</a>
+		</section>
+
+		<!-- Contact Section -->
+		<section id="contact">
+			<h2>Contact Me</h2>
+			<form>
+				<label for="name">Full Name:</label><br />
+				<input type="text" id="name" name="name" required /><br /><br />
+
+				<label for="email">Email Address:</label><br />
+				<input type="email" id="email" name="email" required /><br /><br />
+
+				<label for="message">Your Message:</label><br />
+				<textarea id="message" name="message" rows="5" required></textarea
+				><br /><br />
+
+				<button type="submit">Send</button>
+			</form>
+		</section>
+
+		<!-- Footer -->
+		<footer>
+			<p>&copy; 2025 My Portfolio | Built with ❤️ using HTML</p>
+			<nav>
+				<a href="#home">Back to Top</a>
+			</nav>
+		</footer>
+	</body>
+</html>

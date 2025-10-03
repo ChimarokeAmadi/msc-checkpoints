@@ -1,0 +1,23 @@
+nav ul {
+	display: flex;
+	gap: 15px;
+	list-style: none;
+	justify-content: flex-end;
+}
+
+ul a {
+	text-decoration: none;
+	color: black;
+}
+
+body {
+	background-color: rgb(64, 106, 106);
+}
+
+textarea {
+	background-color: rgb(64, 106, 106);
+}
+
+input {
+	background-color: rgb(64, 106, 106);
+}
