@@ -1,0 +1,27 @@
+// We use FOR-DO when we have a clear vision of the steps of our loop
+
+// we want to calculate the sum of the first 10 numbers
+// 1+2+3+4+5+6+7+8+9+10 = ?
+
+/* *** Calculate the Sum *** */
+
+/* In this example we are going
+to calculate the sum of number from
+1 to 10 */
+ALGORITHM iterative_for
+VAR
+    i : INTEGER;
+    sum : INTEGER := 0;
+
+BEGIN
+
+FOR i FROM 1 TO 10 STEP step  DO 
+/*i represents the iterator variable,
+the 1 represent the starting point
+10 the end point
+step represent the step of the iteration and it's optional
+if we don't put then the default step will 1 */
+    sum := sum + i
+END_FOR
+    Write(sum)
+END
