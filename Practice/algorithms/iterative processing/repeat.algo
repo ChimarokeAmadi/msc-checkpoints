@@ -1,0 +1,11 @@
+// this is just like the while loop except the condition is checked after the instructions are ran. 
+// If the condition is met, it runs the loop again and if not, it exits the loop.
+// this means the code in the loop will run at least once and will repeat until the specified condition is met.
+
+age: INTEGER;
+
+REPEAT
+    Read(age)
+UNTIL (age <= 0)
+
+    Write(age)
