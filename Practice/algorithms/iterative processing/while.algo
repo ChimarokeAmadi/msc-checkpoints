@@ -1,0 +1,13 @@
+// when we loop till a condition is valid we use WHILE-DO
+
+// Calculate how many times we can a divide a number by 2.
+
+count: INTEGER := 0;
+
+
+WHILE (n%2 := 0) DO
+    n := n/2
+    count := count+1
+END_WHILE
+
+    Write(count)
