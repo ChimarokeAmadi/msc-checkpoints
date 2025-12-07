@@ -1,0 +1,16 @@
+
+ALGORITHM BubbleSort(A ARRAY_OF INTEGER;)
+VAR
+   n := A.length 
+BEGIN
+    FOR i FROM 0 TO n-1 STEP step  DO
+        FOR j FROM 0 TO n-2-i STEP step  DO
+            IF (A[j] > A[j+1]) THEN
+                // swap
+                temp := A[j]
+                A[j] := A[j+1]
+                A[j+1] := temp
+            END_IF
+        END_FOR
+    END_FOR
+END
