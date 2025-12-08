@@ -1,0 +1,36 @@
+ALGORITHM word_count
+VAR
+    length, words, vowels : INTEGER
+    character: CHAR
+BEGIN
+    
+
+    Write ("Enter a sentence ending with a period: ")
+
+    Read (character)
+   
+    WHILE character ≠ "." DO
+        length ← length + 1
+
+        // Count words
+        IF character = " " THEN
+            words ← words + 1
+        END_IF
+
+        // Check vowels (lowercase + uppercase)
+        IF character = "a" OR character = "A" OR
+           character = "e" OR character = "E" OR
+           character = "i" OR character = "I" OR
+           character = "o" OR character = "O" OR
+           character = "u" OR character = "U" THEN
+
+            vowels ← vowels + 1
+        END_IF
+
+        READ character
+    END_WHILE
+
+    Write ("Length: ", length)
+    Write ("Words: ", words)
+    Write ("Vowels: ", vowels)
+END
