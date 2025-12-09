@@ -1,0 +1,14 @@
+// Take a moment & Write an algorithm and draw a flowchart that will calculate the roots of a quadratic equation
+
+ALGORITHM biggerNum
+VAR
+    a,b: INTEGER
+BEGIN
+    IF (a > b) THEN
+        Write(a)
+    ELSE_IF (b > a) THEN
+        Write(b)
+    ELSE
+        Write("both numbers are equal")
+    END_IF
+END
