@@ -1,0 +1,130 @@
+.App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 3rem 1rem;
+  background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #be185d 100%);
+}
+
+/* ---------- Product card ---------- */
+
+.product-card {
+  width: 100%;
+  max-width: 380px;
+  border: none;
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+}
+
+.image-wrapper {
+  position: relative;
+  overflow: hidden;
+}
+
+.product-image {
+  display: block;
+  width: 100%;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.06);
+}
+
+.new-badge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.5em 0.9em;
+  border-radius: 999px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.product-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1e1b4b;
+  margin-bottom: 0.5rem;
+}
+
+.product-description {
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+.card-footer-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 1.25rem;
+}
+
+.product-price {
+  font-size: 1.6rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #7c3aed, #db2777);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.buy-button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.6rem 1.4rem;
+  font-weight: 600;
+  background: linear-gradient(90deg, #7c3aed, #db2777);
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.buy-button:hover,
+.buy-button:focus {
+  background: linear-gradient(90deg, #6d28d9, #be185d);
+  transform: scale(1.05);
+}
+
+/* ---------- Greeting ---------- */
+
+.greeting {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(8px);
+  color: #fff;
+}
+
+.greeting p {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+}
+
+.greeting-image {
+  width: 48px;
+  height: 48px;
+  animation: bounce 1.6s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}

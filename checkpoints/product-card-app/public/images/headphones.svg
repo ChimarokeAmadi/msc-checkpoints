@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe3ec"/>
+      <stop offset="1" stop-color="#e0e7ff"/>
+    </linearGradient>
+    <linearGradient id="cup" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4c1d95"/>
+      <stop offset="1" stop-color="#1e1b4b"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg)"/>
+  <circle cx="200" cy="160" r="110" fill="#ffffff" opacity="0.5"/>
+  <!-- headband -->
+  <path d="M110 170 C110 70 290 70 290 170" fill="none" stroke="#312e81" stroke-width="18" stroke-linecap="round"/>
+  <path d="M122 165 C125 92 275 92 278 165" fill="none" stroke="#a78bfa" stroke-width="6" stroke-linecap="round"/>
+  <!-- left ear cup -->
+  <rect x="82" y="150" width="56" height="92" rx="24" fill="url(#cup)"/>
+  <rect x="124" y="162" width="20" height="68" rx="10" fill="#f472b6"/>
+  <!-- right ear cup -->
+  <rect x="262" y="150" width="56" height="92" rx="24" fill="url(#cup)"/>
+  <rect x="256" y="162" width="20" height="68" rx="10" fill="#f472b6"/>
+  <!-- sound waves -->
+  <path d="M60 175 q-14 21 0 42" fill="none" stroke="#a78bfa" stroke-width="5" stroke-linecap="round"/>
+  <path d="M340 175 q14 21 0 42" fill="none" stroke="#a78bfa" stroke-width="5" stroke-linecap="round"/>
+</svg>
