@@ -1,70 +1,37 @@
 # Delivery Task Selection: Brute Force vs Greedy
 
-The goal is to select the maximum number of non-overlapping delivery tasks for a single driver. A task that ends at time *t* and a task that starts at time *t* do not overlap.
+For this checkpoint I wrote two ways of choosing the most delivery tasks a single driver can do without any of them overlapping. In my code, if one task ends at 6 and another starts at 6, I count them as not overlapping, since the driver can finish one and start the next. You can run everything with `node scheduler.js`.
 
-Run the code with:
+## The two solutions
 
-```bash
-node scheduler.js
-```
+The brute force version goes through the tasks one by one and tries both options for each one: taking it or skipping it. It only takes a task if it starts after the last task it took has ended. It keeps track of the biggest set of tasks it finds and returns that at the end.
 
-## 1–2. Implementation and results
+The greedy version sorts the tasks by end time first. Then it goes down the list and takes any task that starts after the last one it picked has finished. The idea is that picking the task that finishes earliest leaves the most time free for the rest.
 
-- **Brute force** (`bruteForce`): for each task, it tries both taking it and skipping it, and keeps the largest valid combination. A task is only taken if it starts after the last taken task ends.
-- **Greedy** (`greedy`): sorts the tasks by end time, then takes every task that starts after the last taken task ends.
+## Results
 
-**Sample input:** both algorithms select 4 tasks, `[1-3] [4-6] [6-7] [8-10]`. To check that the two always agree, the script also compares them on 1,000 random inputs of up to 15 tasks each. They gave the same count every time.
+On the sample input, both versions picked 4 tasks: [1-3], [4-6], [6-7] and [8-10]. I didn't want to rely on just one example, so I also made 1,000 small random lists of tasks and checked that greedy got the same number as brute force every time, and it did.
 
-**10,000 random tasks:**
+For the large test I generated 10,000 random tasks. Greedy finished in about 2 milliseconds. Brute force didn't finish at all. It crashed with a "Maximum call stack size exceeded" error, because the recursion goes one level deeper for every task and JavaScript can't go 10,000 levels deep. So to see how slow it gets, I ran it on smaller lists. With 20 tasks it took about 2 ms, with 25 tasks about 20 ms, and with 30 tasks about a whole second. Greedy stayed under a millisecond for all of these. The times change a little each time I run it, but the pattern is always the same.
 
-| Algorithm | Result |
-|---|---|
-| Greedy | about 3,550 tasks selected in **about 2 ms** |
-| Brute force | **crashed**: call stack overflow (recursion too deep) |
+## Comparing the two
 
-Brute force cannot handle 10,000 tasks at all. The table below shows how its running time grows on inputs small enough for it to finish. The exact times vary from run to run.
+Greedy is much faster on large inputs. All it does is sort the list once (O(n log n)) and then go through it once (O(n)). Brute force has to look at every possible combination of tasks, which is O(2ⁿ), so every extra task roughly doubles the amount of work. That's why it went from 20 ms to a full second with only 5 more tasks.
 
-| Tasks | Brute force | Greedy |
-|---|---|---|
-| 10 | ~0 ms | ~0.01 ms |
-| 20 | ~2 ms | ~0.01 ms |
-| 25 | ~20 ms | ~0.01 ms |
-| 30 | **~1,000 ms** | ~0.01 ms |
+Greedy is also easier to maintain. It's about ten lines, there's no recursion, and it always takes about the same time to run. The brute force code is longer, harder to follow, and I had to add a time limit and catch the crash just to stop it from breaking the program.
 
-## 3. Comparison
+For memory, both of them only need O(n) extra space. Greedy makes a sorted copy of the tasks, and brute force keeps the current combination plus the recursion. The problem with brute force is that the recursion depth grows with the number of tasks, so it ran out of call stack space long before it ran out of actual memory.
 
-**Greedy is far faster for large inputs.** It sorts the tasks once, in O(n log n) time, then scans them once, in O(n) time. Brute force has to try every combination of tasks, which takes O(2ⁿ) time: each extra task roughly doubles the work. At 30 tasks brute force already takes about a second. At 10,000 tasks it could never finish, and in practice it crashes before it gets the chance.
+## My recommendation
 
-**Greedy is also easier to maintain and scale.** It is about ten lines long, has no recursion, and its running time is predictable. Brute force needs recursion, backtracking and a time limit to stay safe, and its running time can explode depending on the input.
+I would use the greedy algorithm for the real system. It handled 10,000 tasks in a couple of milliseconds, so thousands of requests per second should be fine. It's also not just a fast guess. Picking the task that ends earliest is known to always give the best answer for this problem, and my tests agreed with that. And the code is short enough that someone else on the team could read it and understand it quickly.
 
-**Memory:** greedy uses O(n) memory for a sorted copy of the tasks. Brute force also uses only O(n) memory, for the recursion and the current combination. Its problem is that recursion depth grows with the number of tasks, so on large inputs it runs out of call stack and crashes. In other words, brute force fails on stack space long before it fails on total memory.
+Brute force is still useful in a couple of situations. I used it to check that greedy was giving the right answers on small inputs, and that's a good way to keep using it, as a test. It would also matter if the problem changed. Greedy only works here because every task counts the same. If tasks had different values, like how much each delivery pays, and the goal was to earn the most instead of doing the most tasks, greedy wouldn't always be right anymore. Brute force would still work for a handful of tasks, but for a real system I'd look into a dynamic programming approach called weighted interval scheduling instead.
 
-## 4. Recommendation: Greedy
+## Bonus: stress tests
 
-**Use the greedy algorithm in the final system.**
+I tried four edge cases. When all 10,000 tasks overlapped each other, greedy correctly picked just 1 task in under a millisecond, but brute force crashed from the stack overflow again. When none of the tasks overlapped, greedy picked all of them, both for 20 tasks and for 10,000. Brute force got all 20 right on the small one, but it took about 12 ms, which is a lot for 20 tasks. That's because when nothing overlaps, every single combination is valid and it has to check them all. On the 10,000 non-overlapping tasks it crashed.
 
-- **Performance:** it handles 10,000 tasks in a couple of milliseconds, so thousands of requests per second are realistic.
-- **Correctness:** it is not a shortcut that only works most of the time. Picking the task that ends earliest is proven to give the best possible answer for this problem. The tests confirm that it matches brute force on every input checked.
-- **Clarity:** the code is short and easy to read, test and maintain.
+For tasks that share the same start or end times, I made a small list with some duplicates and some tasks that start exactly when others end. Both versions got the right answer of 4 tasks.
 
-**When brute force is still useful:**
-
-- **As a test reference.** On small inputs, it checks that greedy is correct, which is how it is used in `scheduler.js`.
-- **When the problem changes.** Greedy only works because every task is worth the same. If tasks had different values, such as payment, distance or priority, and the goal became the most valuable schedule rather than the most tasks, greedy would no longer be correct. In that case, brute force works for very small inputs. A better solution for real use would be a dynamic programming algorithm known as *weighted interval scheduling*, which runs in O(n log n).
-
-## 5. Bonus: stress tests
-
-| Case | Greedy | Brute force |
-|---|---|---|
-| All overlapping (10,000 tasks) | 1 task, <1 ms | Crashed: call stack overflow |
-| Non-overlapping (20 tasks) | 20 tasks, ~0 ms | 20 tasks, ~12 ms |
-| Non-overlapping (10,000 tasks) | 10,000 tasks, <1 ms | Crashed: call stack overflow |
-| Same start/end times (8 tasks) | 4 tasks | 4 tasks |
-
-**Observations:**
-
-- **Greedy never breaks.** It gives the correct answer in about the same short time for every case.
-- **Brute force breaks in two ways:**
-  - **Time:** non-overlapping tasks are its worst case, because every combination is valid and must be checked. Even 20 tasks take about 12 ms, and each additional task roughly doubles that.
-  - **Stack space:** the recursion goes one level deeper per task, so any input with thousands of tasks crashes. This happens even with all-overlapping tasks, where the search itself would be quick.
-- **Same start or end times work correctly in both.** A task can start exactly when the previous one ends. Duplicate tasks never produce two picks for the same time slot.
+Overall, greedy never had a problem with any of the cases. Brute force breaks in two ways: it gets too slow when lots of combinations are possible, and it crashes as soon as the list gets into the thousands, no matter what the tasks look like.
