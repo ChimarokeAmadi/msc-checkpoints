@@ -1,0 +1,35 @@
+{
+  "display_information": {
+    "name": "HelloBot",
+    "description": "A simple bot that says hello and logs channel messages"
+  },
+  "features": {
+    "bot_user": {
+      "display_name": "HelloBot",
+      "always_online": true
+    },
+    "slash_commands": [
+      {
+        "command": "/hello",
+        "description": "Say hello to the bot",
+        "should_escape": false
+      }
+    ]
+  },
+  "oauth_config": {
+    "scopes": {
+      "bot": ["chat:write", "channels:history", "commands"]
+    }
+  },
+  "settings": {
+    "event_subscriptions": {
+      "bot_events": ["message.channels"]
+    },
+    "interactivity": {
+      "is_enabled": false
+    },
+    "org_deploy_enabled": false,
+    "socket_mode_enabled": true,
+    "token_rotation_enabled": false
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "slack-bot",
+  "version": "1.0.0",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "A simple Slack bot built with Bolt for JavaScript",
+  "dependencies": {
+    "@slack/bolt": "^5.1.0",
+    "dotenv": "^18.0.9"
+  }
+}
