@@ -1,0 +1,35 @@
+.back {
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+.article {
+  max-width: 800px;
+}
+
+.image {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  margin: 12px 0 20px;
+}
+
+.description {
+  font-size: 1.1rem;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+}
+
+.tags li {
+  background: rgba(56, 189, 248, 0.12);
+  color: var(--accent);
+  padding: 4px 14px;
+  border-radius: 999px;
+}

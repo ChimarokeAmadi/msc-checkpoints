@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+<rect width="800" height="450" fill="#0c4a6e"/>
+<rect x="60" y="60" width="680" height="330" rx="18" fill="none" stroke="#7dd3fc" stroke-width="4" stroke-dasharray="14 10" opacity="0.5"/>
+<text x="400" y="215" font-size="110" text-anchor="middle">🛒</text>
+<text x="400" y="320" font-family="Helvetica, Arial, sans-serif" font-size="46" font-weight="700" fill="#7dd3fc" text-anchor="middle">Shopping Cart</text>
+</svg>

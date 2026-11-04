@@ -1,0 +1,41 @@
+.intro {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+  max-width: 800px;
+}
+
+.photo {
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.skills {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 20px;
+}
+
+.group {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+}
+
+.group h3 {
+  margin: 0 0 8px;
+  color: var(--accent);
+}
+
+.group ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+@media (max-width: 700px) {
+  .intro {
+    flex-direction: column;
+    text-align: center;
+  }
+}
