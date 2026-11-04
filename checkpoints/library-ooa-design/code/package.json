@@ -1,0 +1,8 @@
+{
+  "name": "library-ooa-code",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node demo.js"
+  }
+}

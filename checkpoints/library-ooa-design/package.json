@@ -1,0 +1,9 @@
+{
+  "name": "library-ooa-design",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:html": "node build-html.js",
+    "demo": "node code/demo.js"
+  }
+}
