@@ -1,0 +1,12 @@
+{
+  "name": "library-management-system",
+  "version": "1.0.0",
+  "description": "A simplified Library Management System using OOD and design patterns (Factory, Singleton, Observer)",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "node --test"
+  },
+  "license": "ISC"
+}
