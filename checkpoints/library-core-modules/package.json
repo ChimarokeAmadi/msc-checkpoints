@@ -1,0 +1,16 @@
+{
+  "name": "library-core-modules",
+  "version": "1.0.0",
+  "description": "Core components of a Library Management System: ES modules, Factory, Strategy and Observer patterns, interface-like abstractions and dependency injection",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": "./src/index.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "ISC"
+}
