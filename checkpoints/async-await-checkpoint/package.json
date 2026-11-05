@@ -1,0 +1,8 @@
+{
+  "name": "async-await-checkpoint",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node async-await.js"
+  }
+}
