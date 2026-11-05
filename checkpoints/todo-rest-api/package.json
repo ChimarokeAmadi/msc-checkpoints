@@ -1,0 +1,14 @@
+{
+  "name": "todo-rest-api",
+  "version": "1.0.0",
+  "description": "To-Do List REST API using only Node.js core modules",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
