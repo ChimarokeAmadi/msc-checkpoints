@@ -82,8 +82,8 @@ function diskTable(result) {
 
 function diskChart(result, color) {
   const width = 640;
-  const height = 230;
-  const pad = 30;
+  const height = 250;
+  const pad = 34;
   const x = (track) => pad + (track / 199) * (width - 2 * pad);
   const y = (i) => pad + i * ((height - 2 * pad) / result.order.length);
   const points = [HEAD_START, ...result.order].map((t, i) => [x(t), y(i)]);
@@ -108,7 +108,8 @@ const html = `<!doctype html>
   body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.5; font-size: 10.5pt; max-width: 820px; margin: 0 auto; padding: 24px 16px; background: #fff; }
   h1 { font-size: 22pt; margin: 0 0 4px; color: #1e3a8a; }
   h2 { font-size: 15pt; color: #1e3a8a; border-bottom: 2px solid #c7d2fe; padding-bottom: 4px; margin-top: 28px; }
-  h3 { font-size: 12pt; margin: 18px 0 6px; }
+  h3 { font-size: 12pt; margin: 18px 0 6px; break-after: avoid; }
+  h2 { break-after: avoid; }
   .subtitle { color: #64748b; margin: 0 0 16px; }
   .part { break-before: page; }
   table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; font-size: 9.5pt; }
@@ -119,7 +120,7 @@ const html = `<!doctype html>
   td.fault { background: #fee2e2; color: #b91c1c; font-weight: 700; }
   td.hit { background: #dcfce7; color: #15803d; font-weight: 700; }
   .paging th:first-child { text-align: left; width: 80px; }
-  .gantt { margin: 8px 0 22px; }
+  .gantt { margin: 8px 10px 22px; }
   .bar { display: flex; height: 36px; border: 1px solid #334155; border-radius: 4px; overflow: hidden; }
   .block { color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; border-right: 1px solid #fff;
            -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -133,8 +134,8 @@ const html = `<!doctype html>
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   svg.disk { width: 100%; height: auto; margin: 4px 0 8px; }
   svg .grid { stroke: #e2e8f0; stroke-width: 1; }
-  svg .lbl { font-size: 10px; fill: #475569; }
-  svg .lbl2 { font-size: 10px; fill: #475569; transform: translateY(-9px); }
+  svg .lbl { font-size: 11px; fill: #475569; }
+  svg .lbl2 { font-size: 11px; fill: #475569; transform: translateY(-11px); }
   .summary td:first-child, .summary th:first-child { text-align: left; }
   @media (max-width: 640px) { .grid2 { grid-template-columns: 1fr; } }
   @media print { body { padding: 0; } .box, pre, table, .gantt, svg { break-inside: avoid; } }
@@ -155,7 +156,7 @@ const html = `<!doctype html>
 </table>
 
 <!-- ================= PART 1 ================= -->
-<section class="part">
+<section>
 <h2>Part 1: Process Scheduling</h2>
 <table class="narrow"><tr><th>Process</th><th>Arrival time</th><th>Burst time</th></tr>
 ${PROCESSES.map((p) => `<tr><td>${p.id}</td><td>${p.arrival}</td><td>${p.burst}</td></tr>`).join('')}</table>
@@ -237,12 +238,12 @@ print counter                         // always 200</pre>
 <h3>3.1 FIFO (First In, First Out)</h3>
 <p>When a page has to be replaced, FIFO evicts the page that has been in memory the <b>longest</b>, no matter how recently it was used.</p>
 ${pagingTable(fifoResult)}
-<p>At reference 4, page 1 is the oldest, so it's evicted. Then page 1 is needed straight away, so it causes another fault and evicts page 2 (now the oldest). Finally, 5 evicts 3.</p>
+<p>When page 4 is requested, page 1 is the oldest page in memory, so it's evicted. Then page 1 is needed straight away, so it causes another fault and evicts page 2 (now the oldest). Finally, 5 evicts 3.</p>
 
 <h3>3.2 LRU (Least Recently Used)</h3>
 <p>LRU evicts the page that hasn't been <b>used</b> for the longest time, based on the idea that a page used recently will probably be used again soon (locality of reference).</p>
 ${pagingTable(lruResult)}
-<p>At reference 4, page 1 is the least recently used (2 was just used at reference 4), so 1 is evicted, the same choice as FIFO. At the next reference, LRU evicts 3 instead of 2, because 2 was used more recently. The pages kept are different, but the number of faults ends up the same.</p>
+<p>When page 4 is requested, page 1 is the least recently used (page 2 was used one step earlier), so 1 is evicted, the same choice as FIFO. When page 1 comes back, LRU evicts 3 instead of 2, because 2 was used more recently. The pages kept are different, but the number of faults ends up the same.</p>
 
 <h3>3.3 Comparison</h3>
 <table class="narrow"><tr><th>Algorithm</th><th>Page faults</th><th>Hits</th><th>Fault rate</th></tr>
@@ -260,12 +261,14 @@ ${pagingTable(lruResult)}
 
 <h3>4.1 FCFS (First Come, First Served)</h3>
 <p>The requests are served in the order they arrived: <b>${[HEAD_START, ...diskF.order].join(' → ')}</b></p>
-<div class="grid2"><div>${diskTable(diskF)}</div><div>${diskChart(diskF, '#dc2626')}</div></div>
+${diskTable(diskF)}
+${diskChart(diskF, '#dc2626')}
 <div class="box answer">Total head movement (FCFS) = ${diskF.steps.map((s) => s.distance).join(' + ')} = <b>${diskF.total} tracks</b></div>
 
 <h3>4.2 SSTF (Shortest Seek Time First)</h3>
 <p>At each step, the head goes to the pending request <b>closest</b> to its current position. From 53, the closest is 65 (12 away), then 67 (2 away). From 67, the closest is 37 (30 away, closer than 98 at 31), then 14. Then it goes back up through 98, 122, 124 and 183: <b>${[HEAD_START, ...diskS.order].join(' → ')}</b></p>
-<div class="grid2"><div>${diskTable(diskS)}</div><div>${diskChart(diskS, '#2563eb')}</div></div>
+${diskTable(diskS)}
+${diskChart(diskS, '#2563eb')}
 <div class="box answer">Total head movement (SSTF) = ${diskS.steps.map((s) => s.distance).join(' + ')} = <b>${diskS.total} tracks</b></div>
 
 <h3>4.3 Conclusion</h3>
