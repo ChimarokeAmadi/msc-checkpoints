@@ -1,0 +1,9 @@
+{
+  "name": "network-design-checkpoint",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node check.js",
+    "build": "node build-report.js"
+  }
+}

@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Company Floor Network</title>
+<style>
+  @page { size: A4; margin: 15mm 13mm; }
+  * { box-sizing: border-box; }
+  body { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.5; font-size: 10.3pt; max-width: 840px; margin: 0 auto; padding: 24px 16px; background: #fff; }
+  h1 { font-size: 22pt; margin: 0 0 4px; color: #0f4c81; }
+  h2 { font-size: 15pt; color: #0f4c81; border-bottom: 2px solid #bae6fd; padding-bottom: 4px; margin-top: 26px; break-after: avoid; }
+  h3 { font-size: 12pt; margin: 16px 0 6px; break-after: avoid; }
+  .subtitle { color: #64748b; margin: 0 0 14px; }
+  .part { break-before: page; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; font-size: 9pt; break-inside: avoid; }
+  th, td { border: 1px solid #cbd5e1; padding: 4px 6px; text-align: left; vertical-align: top; }
+  th { background: #e0f2fe; }
+  tr.match td { background: #dcfce7; font-weight: 600; }
+  code { font-size: 8.8pt; }
+  td.nw { white-space: nowrap; }
+  table.small { font-size: 8.4pt; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 10px 12px; border-radius: 6px; font-size: 8.6pt; line-height: 1.4; break-inside: avoid; white-space: pre-wrap; }
+  .box { background: #f1f5f9; border-left: 4px solid #0284c7; padding: 8px 12px; margin: 10px 0; border-radius: 4px; break-inside: avoid; }
+  .key { background: #ecfdf5; border-left-color: #16a34a; }
+  svg.topo { width: 100%; height: auto; margin: 6px 0; }
+  svg .nodeTitle { font-size: 12px; font-weight: 700; fill: #0f172a; }
+  svg .nodeInfo { font-size: 9.5px; fill: #334155; font-family: Menlo, monospace; }
+  svg .port { font-size: 10px; fill: #b45309; font-weight: 700; }
+  svg .area { font-size: 12px; font-weight: 700; fill: #475569; }
+  .frame { display: flex; margin: 8px 0 4px; border: 1.5px solid #0f172a; border-radius: 4px; overflow: hidden; break-inside: avoid; }
+  .field { padding: 6px 4px; text-align: center; border-right: 1px solid #0f172a; font-size: 8.5pt; display: flex; flex-direction: column; justify-content: center;
+           -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .field:last-child { border-right: none; }
+  .field small { color: #475569; }
+  .f0, .f1 { background: #e2e8f0; flex: 1; } .f2 { background: #fde68a; flex: 1.6; } .f3 { background: #fed7aa; flex: 1.6; }
+  .f4 { background: #ddd6fe; flex: 1.1; } .f5 { background: #bbf7d0; flex: 3.6; } .f6 { background: #fecaca; flex: 0.9; }
+  .steps li { margin-bottom: 6px; }
+  .seq { font-family: Menlo, monospace; font-size: 8.8pt; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  @media (max-width: 640px) { .two { grid-template-columns: 1fr; } }
+  @media print { body { padding: 0; } }
+</style></head><body>
+
+<h1>Company Floor Network</h1>
+<p class="subtitle">LAN design · data link layer · IP addressing · routing and NAT<br>Chimaroke Amadi · GoMyCode</p>
+
+<p>For this checkpoint I designed a small network for one company floor. It has one router with internet access, two switches, four employee PCs, a printer, and a Wi-Fi access point with two wireless devices. The report follows a frame and a packet through the network and explains what each layer does with them. All the addresses come from one data file, and a small checking script (<code>check.js</code>) confirms that the subnets don't overlap, every MAC and IP address is unique, every device is in the right subnet, and the DHCP pools don't clash with the fixed addresses.</p>
+
+<h3>Network diagram</h3>
+<svg viewBox="0 0 760 590" class="topo" role="img" aria-label="Network diagram">
+    <rect x="12" y="212" width="488" height="370" rx="12" fill="#eff6ff" stroke="#93c5fd"/>
+    <text x="26" y="232" class="area">Wired subnet 192.168.10.0/26</text>
+    <rect x="512" y="212" width="236" height="250" rx="12" fill="#f0fdf4" stroke="#86efac"/>
+    <text x="526" y="232" class="area">Wireless subnet 192.168.10.64/26</text>
+
+    <!-- links -->
+    
+    <line x1="380" y1="52" x2="380" y2="123" stroke="#334155" stroke-width="2" />
+    <text x="386" y="83.5" class="port">G0/0  203.0.113.10</text>
+    
+    <line x1="380" y1="157" x2="190" y2="263" stroke="#334155" stroke-width="2" />
+    <text x="338.5" y="179.5" class="port">G0/1</text>
+    
+    <line x1="380" y1="157" x2="620" y2="263" stroke="#334155" stroke-width="2" />
+    <text x="446" y="179.5" class="port">G0/2</text>
+    
+    <line x1="190" y1="330" x2="80" y2="383" stroke="#334155" stroke-width="2" />
+    
+    
+    <line x1="190" y1="330" x2="200" y2="383" stroke="#334155" stroke-width="2" />
+    
+    
+    <line x1="190" y1="330" x2="380" y2="383" stroke="#334155" stroke-width="2" />
+    
+    
+    <line x1="380" y1="450" x2="250" y2="503" stroke="#334155" stroke-width="2" />
+    
+    
+    <line x1="380" y1="450" x2="380" y2="503" stroke="#334155" stroke-width="2" />
+    
+    
+    <line x1="380" y1="450" x2="510" y2="503" stroke="#334155" stroke-width="2" />
+    
+    
+    <line x1="620" y1="330" x2="570" y2="393" stroke="#334155" stroke-width="2" stroke-dasharray="6 5"/>
+    
+    
+    <line x1="620" y1="330" x2="700" y2="393" stroke="#334155" stroke-width="2" stroke-dasharray="6 5"/>
+    
+
+    <!-- internet -->
+    <g transform="translate(380,30)">
+      <ellipse rx="110" ry="24" fill="#f1f5f9" stroke="#64748b"/>
+      <text y="-2" text-anchor="middle" class="nodeTitle" fill="#334155">Internet (ISP)</text>
+      <text y="12" text-anchor="middle" class="nodeInfo">ISP gateway 203.0.113.9</text>
+    </g>
+
+    
+    <g transform="translate(380,140)">
+      <rect x="-62" y="-17" width="124" height="34" rx="7" fill="#fde68a" stroke="#1e293b" stroke-width="1.2"/>
+      <text y="5" text-anchor="middle" class="nodeTitle">Router R1</text>
+      
+    </g>
+    <text x="452" y="136" class="nodeInfo" text-anchor="start">G0/1 192.168.10.1</text>
+    <text x="452" y="148" class="nodeInfo" text-anchor="start">G0/2 192.168.10.65</text>
+    <text x="452" y="160" class="nodeInfo" text-anchor="start">NAT · DHCP server</text>
+
+    
+    <g transform="translate(190,280)">
+      <rect x="-62" y="-17" width="124" height="34" rx="7" fill="#bfdbfe" stroke="#1e293b" stroke-width="1.2"/>
+      <text y="5" text-anchor="middle" class="nodeTitle">Switch SW1</text>
+      <text y="31" text-anchor="middle" class="nodeInfo">192.168.10.2</text><text y="43" text-anchor="middle" class="nodeInfo">00:1B:44:11:3A:01</text>
+    </g>
+    
+    <g transform="translate(80,400)">
+      <rect x="-62" y="-17" width="124" height="34" rx="7" fill="#ffffff" stroke="#1e293b" stroke-width="1.2"/>
+      <text y="5" text-anchor="middle" class="nodeTitle">PC1</text>
+      <text y="31" text-anchor="middle" class="nodeInfo">192.168.10.11</text><text y="43" text-anchor="middle" class="nodeInfo">3C:52:82:A1:00:11</text>
+    </g>
+    
+    <g transform="translate(200,400)">
+      <rect x="-62" y="-17" width="124" height="34" rx="7" fill="#ffffff" stroke="#1e293b" stroke-width="1.2"/>
+      <text y="5" text-anchor="middle" class="nodeTitle">PC2</text>
+      <text y="31" text-anchor="middle" class="nodeInfo">192.168.10.12</text><text y="43" text-anchor="middle" class="nodeInfo">3C:52:82:A1:00:12</text>
+    </g>
+    
+    <g transform="translate(380,400)">
+      <rect x="-62" y="-17" width="124" height="34" rx="7" fill="#bfdbfe" stroke="#1e293b" stroke-width="1.2"/>
+      <text y="5" text-anchor="middle" class="nodeTitle">Switch SW2</text>
+      <text y="31" text-anchor="middle" class="nodeInfo">192.168.10.3</text><text y="43" text-anchor="middle" class="nodeInfo">00:1B:44:11:3A:02</text>
+    </g>
+    
+    <g transform="translate(250,520)">
+      <rect x="-62" y="-17" width="124" height="34" rx="7" fill="#ffffff" stroke="#1e293b" stroke-width="1.2"/>
+      <text y="5" text-anchor="middle" class="nodeTitle">PC3</text>
+      <text y="31" text-anchor="middle" class="nodeInfo">192.168.10.13</text><text y="43" text-anchor="middle" class="nodeInfo">3C:52:82:A1:00:13</text>
+    </g>
+    
+    <g transform="translate(380,520)">
+      <rect x="-62" y="-17" width="124" height="34" rx="7" fill="#ffffff" stroke="#1e293b" stroke-width="1.2"/>
+      <text y="5" text-anchor="middle" class="nodeTitle">PC4</text>
+      <text y="31" text-anchor="middle" class="nodeInfo">192.168.10.14</text><text y="43" text-anchor="middle" class="nodeInfo">3C:52:82:A1:00:14</text>
+    </g>
+    
+    <g transform="translate(510,520)">
+      <rect x="-62" y="-17" width="124" height="34" rx="7" fill="#fbcfe8" stroke="#1e293b" stroke-width="1.2"/>
+      <text y="5" text-anchor="middle" class="nodeTitle">Printer</text>
+      <text y="31" text-anchor="middle" class="nodeInfo">192.168.10.5</text><text y="43" text-anchor="middle" class="nodeInfo">00:80:77:5E:10:20</text>
+    </g>
+    <rect x="566" y="503" width="0" height="0"/>
+
+    
+    <g transform="translate(620,280)">
+      <rect x="-62" y="-17" width="124" height="34" rx="7" fill="#bbf7d0" stroke="#1e293b" stroke-width="1.2"/>
+      <text y="5" text-anchor="middle" class="nodeTitle">Access point AP1</text>
+      <text y="31" text-anchor="middle" class="nodeInfo">192.168.10.66</text><text y="43" text-anchor="middle" class="nodeInfo">BSSID 00:24:6C:AA:00:02</text>
+    </g>
+    
+    <g transform="translate(570,410)">
+      <rect x="-62" y="-17" width="124" height="34" rx="7" fill="#ffffff" stroke="#1e293b" stroke-width="1.2"/>
+      <text y="5" text-anchor="middle" class="nodeTitle">Laptop (Wi-Fi)</text>
+      <text y="31" text-anchor="middle" class="nodeInfo">192.168.10.70</text><text y="43" text-anchor="middle" class="nodeInfo">A4:83:E7:5B:00:21</text>
+    </g>
+    
+    <g transform="translate(700,410)">
+      <rect x="-62" y="-17" width="124" height="34" rx="7" fill="#ffffff" stroke="#1e293b" stroke-width="1.2"/>
+      <text y="5" text-anchor="middle" class="nodeTitle">Phone (Wi-Fi)</text>
+      <text y="31" text-anchor="middle" class="nodeInfo">192.168.10.71</text><text y="43" text-anchor="middle" class="nodeInfo">F0:18:98:6E:00:22</text>
+    </g>
+  </svg>
+<p>The router connects to the internet on <b>G0/0</b>. Its <b>G0/1</b> port goes to switch SW1, which connects PC1, PC2 and switch SW2. SW2 connects PC3, PC4 and the printer. The router's <b>G0/2</b> port goes to the access point, which serves the laptop and the phone over Wi-Fi (dashed lines). The wired and wireless devices are in two different subnets, so the router sits between them as well as between the LAN and the internet.</p>
+
+<!-- ================= PART 1 ================= -->
+<section class="part">
+<h2>Part 1: MAC Addresses and Frame Handling</h2>
+
+<h3>1.1 MAC addresses</h3>
+<p>A MAC address is the 48-bit (6-byte) hardware address of a network interface, written as six pairs of hex digits. The first 3 bytes are the <b>OUI</b> (Organizationally Unique Identifier, which says who made the card), and the last 3 bytes identify the card itself. MAC addresses are used to deliver frames <i>within one local network</i>. Every interface has its own MAC, so the router has three (one per port) and the access point has two (its wired port, and its radio, whose MAC is the <b>BSSID</b> of the Wi-Fi network). These are example addresses I assigned for the design.</p>
+<table><tr><th>Device</th><th>Interface</th><th>MAC address</th><th>OUI (maker)</th><th>Device part</th></tr><tr><td>Router R1</td><td>G0/0 (WAN, to ISP)</td><td><code>00:1A:2B:3C:4D:01</code></td><td><code>00:1A:2B</code></td><td><code>3C:4D:01</code></td></tr><tr><td>Router R1</td><td>G0/1 (wired LAN)</td><td><code>00:1A:2B:3C:4D:02</code></td><td><code>00:1A:2B</code></td><td><code>3C:4D:02</code></td></tr><tr><td>Router R1</td><td>G0/2 (wireless LAN)</td><td><code>00:1A:2B:3C:4D:03</code></td><td><code>00:1A:2B</code></td><td><code>3C:4D:03</code></td></tr><tr><td>Switch SW1</td><td>Management</td><td><code>00:1B:44:11:3A:01</code></td><td><code>00:1B:44</code></td><td><code>11:3A:01</code></td></tr><tr><td>Switch SW2</td><td>Management</td><td><code>00:1B:44:11:3A:02</code></td><td><code>00:1B:44</code></td><td><code>11:3A:02</code></td></tr><tr><td>Printer</td><td>Ethernet</td><td><code>00:80:77:5E:10:20</code></td><td><code>00:80:77</code></td><td><code>5E:10:20</code></td></tr><tr><td>PC1</td><td>Ethernet</td><td><code>3C:52:82:A1:00:11</code></td><td><code>3C:52:82</code></td><td><code>A1:00:11</code></td></tr><tr><td>PC2</td><td>Ethernet</td><td><code>3C:52:82:A1:00:12</code></td><td><code>3C:52:82</code></td><td><code>A1:00:12</code></td></tr><tr><td>PC3</td><td>Ethernet</td><td><code>3C:52:82:A1:00:13</code></td><td><code>3C:52:82</code></td><td><code>A1:00:13</code></td></tr><tr><td>PC4</td><td>Ethernet</td><td><code>3C:52:82:A1:00:14</code></td><td><code>3C:52:82</code></td><td><code>A1:00:14</code></td></tr><tr><td>Access point AP1</td><td>Ethernet (uplink + management)</td><td><code>00:24:6C:AA:00:01</code></td><td><code>00:24:6C</code></td><td><code>AA:00:01</code></td></tr><tr><td>Access point AP1</td><td>Wi-Fi radio (BSSID)</td><td><code>00:24:6C:AA:00:02</code></td><td><code>00:24:6C</code></td><td><code>AA:00:02</code></td></tr><tr><td>Laptop (wireless 1)</td><td>Wi-Fi</td><td><code>A4:83:E7:5B:00:21</code></td><td><code>A4:83:E7</code></td><td><code>5B:00:21</code></td></tr><tr><td>Phone (wireless 2)</td><td>Wi-Fi</td><td><code>F0:18:98:6E:00:22</code></td><td><code>F0:18:98</code></td><td><code>6E:00:22</code></td></tr></table>
+<p>All of them are <b>unicast</b> addresses (the lowest bit of the first byte is 0). The special address <code>FF:FF:FF:FF:FF:FF</code> is the <b>broadcast</b> address: a frame sent to it is delivered to every device in the same network. ARP and DHCP use it.</p>
+
+<h3>1.2 A frame from PC1 to the printer</h3>
+<p>PC1 (192.168.10.11) and the printer (192.168.10.5) are in the same subnet, so the data doesn't go through the router. It travels as an Ethernet frame through SW1 and SW2. Before sending, PC1 needs the printer's MAC address. If it isn't in its ARP cache, PC1 sends an <b>ARP request</b>, a broadcast frame (destination <code>FF:FF:FF:FF:FF:FF</code>, EtherType <code>0x0806</code>) asking "who has 192.168.10.5? Tell 192.168.10.11". Only the printer answers, with a unicast <b>ARP reply</b>: "192.168.10.5 is at 00:80:77:5E:10:20". Then PC1 sends the print job in an Ethernet II frame:</p>
+<div class="frame"><div class="field f0"><b>Preamble</b><small>7 B</small></div><div class="field f1"><b>SFD</b><small>1 B</small></div><div class="field f2"><b>Destination MAC</b><small>6 B</small></div><div class="field f3"><b>Source MAC</b><small>6 B</small></div><div class="field f4"><b>EtherType</b><small>2 B</small></div><div class="field f5"><b>Payload</b><small>46–1500 B</small></div><div class="field f6"><b>FCS</b><small>4 B</small></div></div>
+<table><tr><th>Field</th><th>Size</th><th>Value in this frame</th><th>Purpose</th></tr><tr><td><b>Preamble</b></td><td>7 B</td><td><code>10101010 × 7</code></td><td>Lets the receiver synchronise its clock</td></tr><tr><td><b>SFD</b></td><td>1 B</td><td><code>10101011</code></td><td>Start Frame Delimiter: "the frame starts now"</td></tr><tr><td><b>Destination MAC</b></td><td>6 B</td><td><code>00:80:77:5E:10:20</code></td><td>The printer's NIC (learned with ARP)</td></tr><tr><td><b>Source MAC</b></td><td>6 B</td><td><code>3C:52:82:A1:00:11</code></td><td>PC1's NIC</td></tr><tr><td><b>EtherType</b></td><td>2 B</td><td><code>0x0800</code></td><td>The payload is an IPv4 packet (0x0806 would be ARP)</td></tr><tr><td><b>Payload</b></td><td>46–1500 B</td><td><code>IPv4 packet</code></td><td>IP header (192.168.10.11 → 192.168.10.5) + TCP header (port 9100) + print data</td></tr><tr><td><b>FCS</b></td><td>4 B</td><td><code>CRC-32</code></td><td>Frame Check Sequence: the receiver recalculates it to detect damaged frames</td></tr></table>
+<p>The payload is the IP packet. Its header has source 192.168.10.11, destination 192.168.10.5, TTL 64 and protocol 6 (TCP). Inside it is a TCP segment to port <b>9100</b> (raw printing; IPP on port 631 would also work) carrying the document. If the job is bigger than 1500 bytes, it's split into several frames. Very small payloads are padded up to 46 bytes, because an Ethernet frame must be at least 64 bytes for collision detection to work.</p>
+
+<p><b>How the switches deliver it:</b> a switch learns which MAC address is on which port by reading the <i>source</i> MAC of every frame it receives, and stores this in its <b>MAC address table</b> (CAM table). For the <i>destination</i> MAC, it forwards the frame only out of the port where that MAC was learned. If it doesn't know the MAC yet, it floods the frame out of every port except the one it came in on.</p>
+<div class="two">
+<table><tr><th colspan="2">SW1 MAC address table</th></tr><tr><th>MAC</th><th>Port</th></tr>
+<tr><td><code>3C:52:82:A1:00:11</code> (PC1)</td><td>Fa0/1</td></tr><tr><td><code>3C:52:82:A1:00:12</code> (PC2)</td><td>Fa0/2</td></tr>
+<tr><td><code>00:80:77:5E:10:20</code> (Printer)</td><td>Gi0/2 (to SW2)</td></tr><tr><td><code>00:1A:2B:3C:4D:02</code> (Router)</td><td>Gi0/1 (to R1)</td></tr></table>
+<table><tr><th colspan="2">SW2 MAC address table</th></tr><tr><th>MAC</th><th>Port</th></tr>
+<tr><td><code>3C:52:82:A1:00:11</code> (PC1)</td><td>Gi0/1 (to SW1)</td></tr><tr><td><code>3C:52:82:A1:00:13</code> (PC3)</td><td>Fa0/1</td></tr>
+<tr><td><code>3C:52:82:A1:00:14</code> (PC4)</td><td>Fa0/2</td></tr><tr><td><code>00:80:77:5E:10:20</code> (Printer)</td><td>Fa0/3</td></tr></table>
+</div>
+<p>So the frame goes PC1 → SW1 (out Gi0/2) → SW2 (out Fa0/3) → printer. The switches <b>don't change the frame</b>: the MAC addresses, the IP packet and the TTL stay exactly the same, because switches work at layer 2. The printer checks the FCS, sees its own MAC as the destination, reads EtherType 0x0800 and passes the packet up to IP and then TCP.</p>
+
+<h3>1.3 Avoiding and handling collisions</h3>
+<p>A <b>collision</b> happens when two devices transmit on the same shared medium at the same time and their signals get mixed up.</p>
+<p><b>Wired Ethernet: CSMA/CD, and why switches make it unnecessary.</b> Old Ethernet used hubs or one shared cable, where all devices were in one <i>collision domain</i>. It used <b>CSMA/CD</b> (Carrier Sense Multiple Access with Collision Detection). A device listens and only transmits when the cable is quiet. It keeps listening while it transmits, and if it detects a collision it stops, sends a <b>jam signal</b> so everyone knows, and waits a random time before trying again (<b>binary exponential backoff</b>: after the n-th collision it waits a random number of slot times between 0 and 2ⁿ − 1, giving up after 16 attempts). In this design the PCs and the printer are connected to <b>switches in full-duplex mode</b>. Each switch port is its own collision domain with only one device on it, and full duplex uses separate wire pairs for sending and receiving, so <b>collisions can't happen</b> and CSMA/CD is effectively switched off. If two PCs send to the printer at once, the switch <b>buffers</b> the frames in a queue instead of letting them collide. All the wired devices are still in one <i>broadcast domain</i>, which the router limits, so broadcasts don't reach the Wi-Fi subnet.</p>
+<p><b>Wi-Fi: CSMA/CA.</b> Wireless is different. All devices share the same radio channel, and a device can't listen while it's transmitting (its own signal is much stronger), so it can't <i>detect</i> collisions. Instead, 802.11 tries to <b>avoid</b> them with <b>CSMA/CA</b> (Collision Avoidance):</p>
+<ol class="steps">
+<li><b>Listen first:</b> the device checks that the channel is free (physical carrier sense). It also checks the <b>NAV</b> (Network Allocation Vector), a timer set from the "duration" field of frames it overhears, which says how long the channel is already booked (virtual carrier sense).</li>
+<li><b>Wait DIFS plus a random backoff:</b> even when the channel is free, it waits a fixed gap (DIFS) and then a random number of slots from its <i>contention window</i>. The countdown pauses whenever someone else transmits. Because the laptop and the phone almost never pick the same number, they rarely start at the same moment.</li>
+<li><b>Transmit, then wait for an ACK:</b> the receiver (here the access point) checks the frame and sends an <b>ACK</b> after a short gap (SIFS). If there's no ACK, the sender assumes a collision or interference, <b>doubles its contention window</b> and tries again.</li>
+<li><b>RTS/CTS for hidden nodes (optional):</b> if the laptop and phone are far apart and can't hear each other, but both can hear the AP, they could collide at the AP without knowing it. With RTS/CTS the sender first sends a short <i>Request To Send</i>, and the AP answers <i>Clear To Send</i>. Everyone who hears the CTS sets their NAV and stays quiet.</li>
+</ol>
+<div class="box key"><b>In short:</b> wired Ethernet with switches has no collisions (each full-duplex port is its own collision domain, and CSMA/CD was only needed for shared, half-duplex links), while Wi-Fi shares the air, so it uses CSMA/CA with random backoff and ACKs to <i>avoid</i> collisions it can't detect.</div>
+</section>
+
+<!-- ================= PART 2 ================= -->
+<section class="part">
+<h2>Part 2: IP Addressing and Subnetting</h2>
+
+<h3>2.1 Choosing the address range</h3>
+<p>I chose <b>192.168.10.0/24</b>, from the 192.168.0.0/16 private block (RFC 1918). Private addresses are free to use inside any organisation and are never routed on the internet, which is why the router needs NAT (Part 3). A /24 gives 256 addresses, which is plenty for one floor.</p>
+
+<h3>2.2 Subnetting: wired and wireless separated</h3>
+<p>I split the /24 into smaller subnets so wired and wireless devices are in <b>separate subnets</b>. This means broadcasts from one don't reach the other, a laptop or phone (more likely to be lost or infected) can't reach the PCs and printer directly unless the router allows it, and each subnet can have its own rules and DHCP settings. Borrowing 2 bits from the host part gives /26 subnets of 64 addresses (62 usable). I used two of them, plus the upper half kept as a /25 for later.</p>
+<table class="small"><tr><th>Subnet</th><th>Mask</th><th>Usable hosts</th><th>Broadcast</th><th>#</th><th>Gateway</th><th>Used for</th></tr>
+<tr><td class="nw"><b>192.168.10.0/26</b></td><td class="nw">255.255.255.192</td><td class="nw">192.168.10.1 – 192.168.10.62</td><td class="nw">192.168.10.63</td><td>62</td><td class="nw">192.168.10.1</td><td>PCs, printer, switches</td></tr>
+<tr><td class="nw"><b>192.168.10.64/26</b></td><td class="nw">255.255.255.192</td><td class="nw">192.168.10.65 – 192.168.10.126</td><td class="nw">192.168.10.127</td><td>62</td><td class="nw">192.168.10.65</td><td>Access point and Wi-Fi devices</td></tr>
+<tr><td class="nw"><b>192.168.10.128/25</b></td><td class="nw">255.255.255.128</td><td class="nw">192.168.10.129 – 192.168.10.254</td><td class="nw">192.168.10.255</td><td>126</td><td class="nw">—</td><td>Free for later (guest Wi-Fi, servers…)</td></tr>
+<tr><td class="nw"><b>203.0.113.8/30</b></td><td class="nw">255.255.255.252</td><td class="nw">203.0.113.9 – 203.0.113.10</td><td class="nw">203.0.113.11</td><td>2</td><td class="nw">203.0.113.9</td><td>Public link between R1 and the ISP</td></tr></table>
+<p><b>How /26 works:</b> the mask is <code>11111111.11111111.11111111.11000000</code> = 255.255.255.192. The first 26 bits are the network, and the last 6 bits (2⁶ = 64 addresses) are for hosts. The first address of each block is the network address and the last is the broadcast address, so 64 − 2 = <b>62 usable</b> addresses per subnet. The blocks start every 64: .0, .64, .128 and .192. The WAN link is a /30 (4 addresses, 2 usable), the usual size for a link between two routers.</p>
+
+<h3>2.3 Address assignment</h3>
+<p>In each subnet, the first addresses are kept for devices that need a <b>fixed address</b>: the router (the gateway is always the first usable address), the switches' management interfaces, the printer and the access point. Everything else gets an address from <b>DHCP</b>. Wired: fixed 192.168.10.1 – 192.168.10.9, DHCP pool 192.168.10.10 – 192.168.10.62. Wireless: fixed 192.168.10.65 – 192.168.10.69, DHCP pool 192.168.10.70 – 192.168.10.126. The DHCP addresses shown are the ones the devices would typically receive.</p>
+<table><tr><th>Device</th><th>Interface</th><th>IP address</th><th>Subnet mask</th><th>Default gateway</th><th>How</th></tr><tr><td>Router R1</td><td>G0/0 (WAN, to ISP)</td><td><b>203.0.113.10</b>/30</td><td>255.255.255.252</td><td>—</td><td>Static (from ISP)</td></tr><tr><td>Router R1</td><td>G0/1 (wired LAN)</td><td><b>192.168.10.1</b>/26</td><td>255.255.255.192</td><td>—</td><td>Static (gateway)</td></tr><tr><td>Router R1</td><td>G0/2 (wireless LAN)</td><td><b>192.168.10.65</b>/26</td><td>255.255.255.192</td><td>—</td><td>Static (gateway)</td></tr><tr><td>Switch SW1</td><td>Management</td><td><b>192.168.10.2</b>/26</td><td>255.255.255.192</td><td>192.168.10.1</td><td>Static</td></tr><tr><td>Switch SW2</td><td>Management</td><td><b>192.168.10.3</b>/26</td><td>255.255.255.192</td><td>192.168.10.1</td><td>Static</td></tr><tr><td>Printer</td><td>Ethernet</td><td><b>192.168.10.5</b>/26</td><td>255.255.255.192</td><td>192.168.10.1</td><td>Static (so it never changes)</td></tr><tr><td>PC1</td><td>Ethernet</td><td><b>192.168.10.11</b>/26</td><td>255.255.255.192</td><td>192.168.10.1</td><td>DHCP</td></tr><tr><td>PC2</td><td>Ethernet</td><td><b>192.168.10.12</b>/26</td><td>255.255.255.192</td><td>192.168.10.1</td><td>DHCP</td></tr><tr><td>PC3</td><td>Ethernet</td><td><b>192.168.10.13</b>/26</td><td>255.255.255.192</td><td>192.168.10.1</td><td>DHCP</td></tr><tr><td>PC4</td><td>Ethernet</td><td><b>192.168.10.14</b>/26</td><td>255.255.255.192</td><td>192.168.10.1</td><td>DHCP</td></tr><tr><td>Access point AP1</td><td>Ethernet (uplink + management)</td><td><b>192.168.10.66</b>/26</td><td>255.255.255.192</td><td>192.168.10.65</td><td>Static</td></tr><tr><td>Laptop (wireless 1)</td><td>Wi-Fi</td><td><b>192.168.10.70</b>/26</td><td>255.255.255.192</td><td>192.168.10.65</td><td>DHCP</td></tr><tr><td>Phone (wireless 2)</td><td>Wi-Fi</td><td><b>192.168.10.71</b>/26</td><td>255.255.255.192</td><td>192.168.10.65</td><td>DHCP</td></tr></table>
+<p>The <b>default gateway</b> is the router interface in a device's own subnet: <b>192.168.10.1</b> for the wired devices and <b>192.168.10.65</b> for the wireless ones. A device sends any packet for another network (the other subnet or the internet) to its gateway. All devices use DNS servers 1.1.1.1 and 8.8.8.8. The printer has a fixed address so the PCs' printer settings never break. With DHCP, it could also get a <i>reservation</i> (always the same address for its MAC).</p>
+
+<h3>2.4 The role of DHCP</h3>
+<p><b>DHCP</b> (Dynamic Host Configuration Protocol) gives devices their network settings automatically when they connect, so nobody has to type them on every PC and phone, and two devices can never be given the same address by mistake. Here the router R1 is the DHCP server, with one pool per subnet. Each pool hands out an <b>IP address</b>, the <b>subnet mask</b>, the <b>default gateway</b>, the <b>DNS servers</b> and a <b>lease time</b>. When the lease runs out, the address goes back to the pool, which suits Wi-Fi devices that come and go. When the laptop joins the Wi-Fi, it goes through the four <b>DORA</b> steps:</p>
+<table class="seq"><tr><th>#</th><th>Message</th><th>From → To</th><th>Content</th></tr>
+<tr><td>1</td><td><b>D</b>ISCOVER</td><td>0.0.0.0 → 255.255.255.255 (broadcast)<br>MAC A4:83:E7:5B:00:21 → FF:FF:FF:FF:FF:FF</td><td>"I need an address." It has no IP yet, so it broadcasts (UDP 68 → 67).</td></tr>
+<tr><td>2</td><td><b>O</b>FFER</td><td>192.168.10.65 → 192.168.10.70</td><td>"You can have 192.168.10.70, mask 255.255.255.192, gateway 192.168.10.65, DNS 1.1.1.1, lease 2 h."</td></tr>
+<tr><td>3</td><td><b>R</b>EQUEST</td><td>0.0.0.0 → 255.255.255.255</td><td>"I accept 192.168.10.70." Broadcast, so any other DHCP server knows its offer was declined.</td></tr>
+<tr><td>4</td><td><b>A</b>CK</td><td>192.168.10.65 → 192.168.10.70</td><td>"Confirmed." The laptop now configures its interface.</td></tr></table>
+<p>The configuration on the router, written as Cisco IOS commands:</p>
+<pre>ip dhcp excluded-address 192.168.10.1 192.168.10.9        ! fixed addresses are never handed out
+ip dhcp excluded-address 192.168.10.65 192.168.10.69
+ip dhcp pool WIRED
+ network 192.168.10.0 255.255.255.192
+ default-router 192.168.10.1
+ dns-server 1.1.1.1 8.8.8.8
+ lease 0 8                                            ! 8 hours: PCs stay all day
+ip dhcp pool WIRELESS
+ network 192.168.10.64 255.255.255.192
+ default-router 192.168.10.65
+ dns-server 1.1.1.1 8.8.8.8
+ lease 0 2                                            ! 2 hours: phones come and go</pre>
+<p>The router can answer both subnets directly because it has an interface in each one. If the DHCP server were in another subnet, the router would need <code>ip helper-address</code> to forward the broadcast DISCOVER messages, because routers don't forward broadcasts.</p>
+</section>
+
+<!-- ================= PART 3 ================= -->
+<section class="part">
+<h2>Part 3: Routing and Packet Forwarding</h2>
+<p>Scenario: the <b>laptop</b> (192.168.10.70) opens <b>https://www.example.com</b>. For the example I use 198.51.100.25 as the website's public IP address (an address reserved for documentation).</p>
+
+<h3>3.1 What happens, step by step</h3>
+<ol class="steps">
+<li><b>Configuration:</b> the laptop already has its IP, mask, gateway and DNS from DHCP (Part 2).</li>
+<li><b>DNS lookup:</b> the laptop asks its DNS server (1.1.1.1, UDP port 53) for the IP of www.example.com and gets 198.51.100.25. The DNS query itself travels the same way as the steps below.</li>
+<li><b>Local or remote?</b> The laptop ANDs the destination with its mask: 198.51.100.25 AND 255.255.255.192 = <b>198.51.100.0</b>, which isn't its own network (192.168.10.64). So the packet must go to the <b>default gateway</b> 192.168.10.65. (For the AP at 192.168.10.66, the result would be 192.168.10.64, the same network, and it would send directly.)</li>
+<li><b>ARP for the gateway:</b> the laptop needs the gateway's MAC, so it ARPs for 192.168.10.65 and learns <code>00:1A:2B:3C:4D:03</code>. Note that the IP destination is the website, but the frame's destination MAC is the router.</li>
+<li><b>Building the packet:</b> TCP (for HTTPS, port 443) from a random source port 51514. The IP header has source 192.168.10.70, destination 198.51.100.25, TTL 64 and protocol 6. (The very first packets are the TCP handshake SYN, SYN-ACK and ACK, then the TLS handshake. They all follow this same path.)</li>
+<li><b>Over the air to the AP:</b> the packet goes in an <b>802.11 frame</b>. Wi-Fi frames have 3 addresses here: receiver = the AP's BSSID <code>00:24:6C:AA:00:02</code>, transmitter = the laptop <code>A4:83:E7:5B:00:21</code>, final destination = the router <code>00:1A:2B:3C:4D:03</code>. CSMA/CA decides when it may transmit, and the AP ACKs it.</li>
+<li><b>The AP bridges it to Ethernet:</b> the AP works at layer 2. It turns the 802.11 frame into an Ethernet frame (destination 00:1A:2B:3C:4D:03, source A4:83:E7:5B:00:21) and sends it up its cable to router port G0/2.</li>
+<li><b>The router processes the IP header</b> (3.2): it checks the frame's FCS, sees its own MAC, removes the Ethernet header, checks the IP header checksum, <b>decreases the TTL</b> (64 → 63), and looks up the destination in its <b>routing table</b> (3.3). The result is the default route, out G0/0.</li>
+<li><b>NAT</b> (3.4): because the source is a private address, the router replaces <code>192.168.10.70:51514</code> with its public address <code>203.0.113.10:40001</code>, remembers the translation, and recalculates the checksums.</li>
+<li><b>New frame for the next link:</b> the router ARPs for the ISP gateway 203.0.113.9 and puts the packet in a <b>new Ethernet frame</b>: source 00:1A:2B:3C:4D:01, destination 00:50:56:EE:00:09.</li>
+<li><b>Across the internet:</b> every router on the way does the same thing: reads the destination IP, decreases TTL, does a longest-prefix-match lookup (internet routers learn routes with protocols like BGP and OSPF), and builds a new frame for the next link. <b>The MAC addresses change on every hop, but the IP addresses don't</b> (after NAT). If TTL ever reaches 0, the packet is dropped and an ICMP "time exceeded" message is sent back, which prevents endless loops.</li>
+<li><b>The way back:</b> the server replies to <code>203.0.113.10:40001</code>. R1 finds that port in its NAT table, changes the destination back to <code>192.168.10.70:51514</code>, sees in its routing table that 192.168.10.64/26 is directly connected on G0/2, and sends it in a frame to the laptop's MAC. The AP converts it to an 802.11 frame, and the laptop's browser receives the web page.</li>
+</ol>
+
+<h3>Headers on each part of the path</h3>
+<table><tr><th>Hop</th><th>Link</th><th>Layer 2: source → destination MAC</th><th>Source IP:port</th><th>Destination IP:port</th><th>TTL</th></tr><tr><td>1</td><td>Laptop → AP1 (802.11 Wi-Fi)</td><td>A4:83:E7:5B:00:21 → 00:24:6C:AA:00:02 (BSSID)<br><small>3rd address = router 00:1A:2B:3C:4D:03</small></td><td>192.168.10.70:51514</td><td>198.51.100.25:443</td><td>64</td></tr><tr><td>2</td><td>AP1 → R1 G0/2 (Ethernet)</td><td>A4:83:E7:5B:00:21 → 00:1A:2B:3C:4D:03</td><td>192.168.10.70:51514</td><td>198.51.100.25:443</td><td>64</td></tr><tr><td>3</td><td>R1 G0/0 → ISP gateway</td><td>00:1A:2B:3C:4D:01 → 00:50:56:EE:00:09</td><td><b>203.0.113.10:40001</b> (NAT)</td><td>198.51.100.25:443</td><td><b>63</b></td></tr><tr><td>4…n</td><td>Internet routers</td><td>new MACs on every link</td><td>203.0.113.10:40001</td><td>198.51.100.25:443</td><td>62, 61, …</td></tr><tr><td>back</td><td>Reply arrives at R1 G0/0</td><td>ISP MAC → 00:1A:2B:3C:4D:01</td><td>198.51.100.25:443</td><td>203.0.113.10:40001</td><td>≈ 50</td></tr><tr><td>back</td><td>R1 G0/2 → AP1 → Laptop</td><td>00:1A:2B:3C:4D:03 → A4:83:E7:5B:00:21</td><td>198.51.100.25:443</td><td><b>192.168.10.70:51514</b> (NAT reversed)</td><td>≈ 49</td></tr></table>
+
+<h3>3.2 How routers use the IP header</h3>
+<p>Switches only look at the MAC addresses in the frame. A router removes the frame and works on the <b>IPv4 header</b>:</p>
+<table><tr><th>Field</th><th>What the router does with it</th></tr>
+<tr><td><b>Destination IP address</b></td><td>The most important field: it's looked up in the routing table to choose the next hop and the outgoing interface.</td></tr>
+<tr><td><b>TTL (Time To Live)</b></td><td>Decreased by 1 at every router. At 0 the packet is dropped and an ICMP "Time Exceeded" is sent back, so packets can't loop forever.</td></tr>
+<tr><td><b>Header checksum</b></td><td>Checked when the packet arrives (damaged headers are dropped) and recalculated after TTL or NAT changes.</td></tr>
+<tr><td><b>Source IP address</b></td><td>Normally not changed. Here, NAT replaces it at R1. It's also used by ACLs (firewall rules) and for sending ICMP errors.</td></tr>
+<tr><td><b>Total length, ID, flags, fragment offset</b></td><td>If the next link's MTU is smaller than the packet, the router can fragment it (unless the "Don't Fragment" flag is set, in which case it drops the packet and tells the sender).</td></tr>
+<tr><td><b>Protocol</b> (6 = TCP), <b>DSCP</b></td><td>Protocol tells NAT and firewalls which header comes next (here TCP, for the ports). DSCP can be used to prioritise traffic (QoS).</td></tr></table>
+
+<h3>3.3 How the router chooses the next hop</h3>
+<p>R1's routing table. <b>C</b> routes are networks it's directly connected to, and <b>S*</b> is the static <b>default route</b> to the ISP ("gateway of last resort"):</p>
+<table><tr><th>Code</th><th>Destination</th><th>Next hop</th><th>Interface</th></tr><tr><td>C</td><td>192.168.10.0/26</td><td>directly connected</td><td>G0/1</td></tr><tr><td>C</td><td>192.168.10.64/26</td><td>directly connected</td><td>G0/2</td></tr><tr><td>C</td><td>203.0.113.8/30</td><td>directly connected</td><td>G0/0</td></tr><tr><td>S*</td><td>0.0.0.0/0</td><td>203.0.113.9</td><td>G0/0</td></tr></table>
+<p>The router compares the destination IP with every route and picks the matching route with the <b>longest prefix</b> (the most specific one). The default route 0.0.0.0/0 matches everything, but it has the shortest prefix, so it's only used when nothing more specific matches.</p>
+<div class="two">
+<div><b>Outgoing packet to 198.51.100.25</b><table><tr><th>Route</th><th>Match?</th><th>Prefix</th></tr><tr class=""><td>192.168.10.0/26</td><td>✘ no match</td><td>/26</td></tr><tr class=""><td>192.168.10.64/26</td><td>✘ no match</td><td>/26</td></tr><tr class=""><td>203.0.113.8/30</td><td>✘ no match</td><td>/30</td></tr><tr class="match"><td>0.0.0.0/0</td><td>✔ matches</td><td>/0</td></tr></table>
+→ only the default route matches: <b>next hop 203.0.113.9 via G0/0</b>.</div>
+<div><b>Reply to 192.168.10.70 (after NAT)</b><table><tr><th>Route</th><th>Match?</th><th>Prefix</th></tr><tr class=""><td>192.168.10.0/26</td><td>✘ no match</td><td>/26</td></tr><tr class="match"><td>192.168.10.64/26</td><td>✔ matches</td><td>/26</td></tr><tr class=""><td>203.0.113.8/30</td><td>✘ no match</td><td>/30</td></tr><tr class="match"><td>0.0.0.0/0</td><td>✔ matches</td><td>/0</td></tr></table>
+→ /26 beats /0: <b>directly connected, out G0/2</b>, to the laptop itself.</div></div>
+<p>When the next hop is "directly connected", the router delivers to the destination host itself and ARPs for <i>its</i> MAC. Otherwise it ARPs for the next-hop router's MAC. Either way, forwarding never changes the destination IP in the packet (only NAT does, at the edge of the network). Only the frame around it changes.</p>
+
+<h3>3.4 The role of NAT at the router</h3>
+<p>The 192.168.10.x addresses are private, so the internet can't route replies to them, and the ISP gives the company only <b>one public address</b> (203.0.113.10). <b>NAT</b> (Network Address Translation) on R1 solves both problems. More precisely, it's <b>PAT</b> (Port Address Translation, "NAT overload"): all 6 PCs and wireless devices share the one public IP, and the router tells their connections apart by <b>port number</b>. It keeps a translation table:</p>
+<table><tr><th>Inside local (private)</th><th>Inside global (public)</th><th>Outside (website)</th><th>Device</th></tr>
+<tr><td>192.168.10.70:51514</td><td>203.0.113.10:40001</td><td>198.51.100.25:443</td><td>Laptop</td></tr>
+<tr><td>192.168.10.71:60200</td><td>203.0.113.10:40002</td><td>198.51.100.25:443</td><td>Phone</td></tr>
+<tr><td>192.168.10.11:51514</td><td>203.0.113.10:40003</td><td>198.51.100.25:443</td><td>PC1 (same source port as the laptop!)</td></tr></table>
+<p>The last row shows why ports are translated too: PC1 and the laptop happen to use the same source port, so the router gives each connection a different public port to keep the replies apart. For outgoing packets, NAT rewrites the <b>source</b> IP and port. For replies, it looks up the destination port and rewrites the <b>destination</b> back. It also protects the LAN, because a packet from the internet that doesn't match an existing entry has nowhere to go, so outside devices can't start connections to the PCs. The router configuration:</p>
+<pre>interface G0/0
+ ip address 203.0.113.10 255.255.255.252
+ ip nat outside
+interface G0/1
+ ip address 192.168.10.1 255.255.255.192
+ ip nat inside
+interface G0/2
+ ip address 192.168.10.65 255.255.255.192
+ ip nat inside
+access-list 1 permit 192.168.10.0 0.0.0.127        ! both LAN subnets (.0 – .127)
+ip nat inside source list 1 interface G0/0 overload
+ip route 0.0.0.0 0.0.0.0 203.0.113.9            ! default route to the ISP</pre>
+
+<div class="box key"><b>Summary of the path:</b> laptop → (802.11, CSMA/CA) → AP → (Ethernet) → R1 G0/2 → routing table: default route → NAT 192.168.10.70:51514 → 203.0.113.10:40001 → G0/0 → ISP → internet routers (TTL − 1 and a new frame at each hop) → 198.51.100.25. The reply comes back to the public address, NAT translates it back to the laptop's private address, and R1 delivers it through the AP. At layer 2 the addresses change on every link, at layer 3 they stay the same end to end, except where NAT rewrites them at the edge.</div>
+</section>
+</body></html>
