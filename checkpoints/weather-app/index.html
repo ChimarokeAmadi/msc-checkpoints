@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A simple weather app: search a city and see the current weather and a 5-day forecast.">
+  <title>Weather App</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="theme-default">
+  <main class="app">
+    <header class="app-header">
+      <h1>☀️ Weather</h1>
+      <div class="unit-toggle" role="group" aria-label="Temperature unit">
+        <button type="button" class="unit-btn active" data-unit="C" aria-pressed="true">°C</button>
+        <button type="button" class="unit-btn" data-unit="F" aria-pressed="false">°F</button>
+      </div>
+    </header>
+
+    <!-- Search -->
+    <form id="search-form" class="search" autocomplete="off">
+      <label for="city-input" class="visually-hidden">City name</label>
+      <input id="city-input" type="text" placeholder="Search a city, e.g. Tunis" required>
+      <button type="submit" class="btn-primary">Search</button>
+      <button type="button" id="location-btn" class="btn-icon" title="Use my location" aria-label="Use my location">📍</button>
+    </form>
+
+    <!-- Messages: loading and errors -->
+    <p id="status" class="status" role="status" aria-live="polite"></p>
+
+    <!-- Current weather (hidden until we have data) -->
+    <section id="current" class="card current hidden" aria-label="Current weather">
+      <div class="location">
+        <h2 id="city-name"></h2>
+        <p id="local-time" class="muted"></p>
+      </div>
+      <div class="main-reading">
+        <span id="weather-icon" class="weather-icon" aria-hidden="true"></span>
+        <div>
+          <p id="temperature" class="temperature"></p>
+          <p id="description" class="description"></p>
+          <p id="high-low" class="muted"></p>
+        </div>
+      </div>
+      <ul class="details">
+        <li><span class="label">Feels like</span><span id="feels-like"></span></li>
+        <li><span class="label">Humidity</span><span id="humidity"></span></li>
+        <li><span class="label">Wind</span><span id="wind"></span></li>
+      </ul>
+    </section>
+
+    <!-- 5-day forecast -->
+    <section id="forecast-section" class="hidden" aria-label="5-day forecast">
+      <h3>Next 5 days</h3>
+      <div id="forecast" class="forecast"></div>
+    </section>
+
+    <footer class="app-footer">
+      Weather data from <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
