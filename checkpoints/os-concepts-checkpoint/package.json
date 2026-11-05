@@ -1,0 +1,9 @@
+{
+  "name": "os-concepts-checkpoint",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "simulate": "node simulations.js",
+    "build": "node build-report.js"
+  }
+}
