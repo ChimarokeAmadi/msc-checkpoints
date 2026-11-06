@@ -1,0 +1,22 @@
+{
+  "name": "node-intro-checkpoint",
+  "version": "1.0.0",
+  "main": "hello-world.js",
+  "scripts": {
+    "hello": "node hello-world.js",
+    "server": "node server.js",
+    "write-file": "node write-file.js",
+    "read-file": "node read-file.js",
+    "password": "node password-generator.js",
+    "email": "node email-sender.js",
+    "email:test": "node email-sender.js --test"
+  },
+  "keywords": [],
+  "author": "Chimaroke Amadi",
+  "license": "ISC",
+  "description": "Introduction to Node.js: five small exercises",
+  "dependencies": {
+    "generate-password": "^1.7.1",
+    "nodemailer": "^10.3.1"
+  }
+}
