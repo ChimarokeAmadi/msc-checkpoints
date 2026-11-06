@@ -1,0 +1,21 @@
+{
+  "name": "express-working-hours",
+  "version": "1.0.0",
+  "main": "server.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node --test",
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [],
+  "author": "Chimaroke Amadi",
+  "license": "ISC",
+  "description": "Express web app that is only open during working hours",
+  "dependencies": {
+    "ejs": "^7.0.2",
+    "express": "^5.3.0"
+  }
+}

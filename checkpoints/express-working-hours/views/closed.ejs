@@ -1,0 +1,10 @@
+<%- include('partials/header') %>
+
+<section class="hero closed">
+  <h1>Sorry, we're closed right now</h1>
+  <p>This website is only available during working hours:
+    <strong>Monday to Friday, <%= openHour %>:00 to <%= closeHour %>:00</strong>.</p>
+  <p>Your visit: <strong><%= requestTime %></strong>. We open again <strong><%= nextOpening %></strong>.</p>
+</section>
+
+<%- include('partials/footer') %>

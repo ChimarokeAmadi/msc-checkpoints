@@ -1,0 +1,27 @@
+<%- include('partials/header') %>
+
+<h1 class="page-title">Our Services</h1>
+<p class="lead">Pick one service or combine a few. Every project starts with a free 30-minute call.</p>
+
+<%
+  const services = [
+    { name: 'Website design', price: 'from ₦250,000', text: 'A modern site that looks good on phones, tablets and computers.' },
+    { name: 'Online shop', price: 'from ₦450,000', text: 'Sell your products online with secure payments and easy stock updates.' },
+    { name: 'Search visibility (SEO)', price: 'from ₦80,000 / month', text: 'Help customers find you on Google with better content and faster pages.' },
+    { name: 'Maintenance', price: 'from ₦40,000 / month', text: 'Updates, backups and small changes, so you can focus on your business.' },
+  ];
+%>
+
+<section class="cards">
+  <% services.forEach((service) => { %>
+    <article class="card">
+      <h2><%= service.name %></h2>
+      <p><%= service.text %></p>
+      <p class="price"><%= service.price %></p>
+    </article>
+  <% }) %>
+</section>
+
+<p class="center"><a href="/contact" class="button">Ask for a quote</a></p>
+
+<%- include('partials/footer') %>

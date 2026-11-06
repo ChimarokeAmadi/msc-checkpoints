@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> · Brightway Studio</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="/" class="logo">Brightway<span>Studio</span></a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="/" class="<%= current === 'home' ? 'active' : '' %>">Home</a></li>
+          <li><a href="/services" class="<%= current === 'services' ? 'active' : '' %>">Our Services</a></li>
+          <li><a href="/contact" class="<%= current === 'contact' ? 'active' : '' %>">Contact us</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+  <main class="container">
