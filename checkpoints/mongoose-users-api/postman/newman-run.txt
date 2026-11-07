@@ -1,0 +1,49 @@
+Users REST API (Mongoose)
+
+Root 1. POST add a user
+  POST http://localhost:3100/users [201 Created, 429B, 21ms]
+  Pass  201 Created
+  Pass  has an _id
+
+Root 2. GET all users
+  GET http://localhost:3100/users [200 OK, 426B, 3ms]
+  Pass  200 OK
+  Pass  the new user is in the list
+
+Root 3. PUT edit the user
+  PUT http://localhost:3100/users/6aef6d8b5eaa28c32cec33d1 [200 OK, 424B, 5ms]
+  Pass  200 OK
+  Pass  age was updated
+
+Root 4. DELETE remove the user
+  DELETE http://localhost:3100/users/6aef6d8b5eaa28c32cec33d1 [200 OK, 458B, 2ms]
+  Pass  200 OK
+  Pass  returns the deleted user
+
+Root 5. DELETE again -> 404
+  DELETE http://localhost:3100/users/6aef6d8b5eaa28c32cec33d1 [404 Not Found, 270B, 2ms]
+  Pass  404 Not Found
+
+Root 6. POST invalid user -> 400
+  POST http://localhost:3100/users [400 Bad Request, 321B, 2ms]
+  Pass  400 Bad Request
+
+---------------------------------------------------------------
+|                         |        executed |          failed |
+--------------------------+-----------------+------------------
+|              iterations |               1 |               0 |
+--------------------------+-----------------+------------------
+|                requests |               6 |               0 |
+--------------------------+-----------------+------------------
+|            test-scripts |               6 |               0 |
+--------------------------+-----------------+------------------
+|      prerequest-scripts |               0 |               0 |
+--------------------------+-----------------+------------------
+|              assertions |              10 |               0 |
+---------------------------------------------------------------
+| total run duration: 102ms                                   |
+---------------------------------------------------------------
+| total data received: 893B (approx)                          |
+---------------------------------------------------------------
+| average response time: 5ms [min: 2ms, max: 21ms, s.d.: 6ms] |
+---------------------------------------------------------------
