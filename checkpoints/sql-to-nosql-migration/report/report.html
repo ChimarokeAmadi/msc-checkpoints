@@ -257,7 +257,7 @@ The messy email <code>"  Student50@Student.UNI.edu "</code> was <b>trimmed and l
 </ul>
 
 <h3>How a DLoader-style pipeline optimizes it, measured</h3>
-<p>The whole migration (108,520 rows → 20,368 documents, plus indexes) took <b>738 ms</b> on my laptop. Here are the experiments behind that:</p>
+<p>The whole migration (108,520 rows → 20,368 documents, plus indexes) took <b>736 ms</b> on my laptop. Here are the experiments behind that:</p>
 
 <p><b>1. Batching.</b> I loaded the 20,000 students with different batch sizes (median of 3 runs each):</p>
 <svg viewBox="0 0 640 230" class="chart" role="img" aria-label="Students migrated per second by batch size">
@@ -267,16 +267,16 @@ The messy email <code>"  Student50@Student.UNI.edu "</code> was <b>trimmed and l
       <text x="62" y="105" text-anchor="end" class="tick">25,000</text><line x1="70" x2="620" y1="59.5" y2="59.5" stroke="#e2e8f0" stroke-width="1"/>
       <text x="62" y="63.5" text-anchor="end" class="tick">37,500</text><line x1="70" x2="620" y1="18" y2="18" stroke="#e2e8f0" stroke-width="1"/>
       <text x="62" y="22" text-anchor="end" class="tick">50,000</text>
-    <path d="M102,184 V174.44776 Q102,170.44776 106,170.44776 H144 Q148,170.44776 148,174.44776 V184 Z" fill="#2563eb"/>
-        <text x="125" y="164.44776" text-anchor="middle" class="val">4,082</text>
-        <text x="125" y="202" text-anchor="middle" class="tick">1</text><path d="M212,184 V112.11476 Q212,108.11476 216,108.11476 H254 Q258,108.11476 258,112.11476 V184 Z" fill="#2563eb"/>
-        <text x="235" y="102.11476" text-anchor="middle" class="val">22,857</text>
-        <text x="235" y="202" text-anchor="middle" class="tick">10</text><path d="M322,184 V68.14468 Q322,64.14468 326,64.14468 H364 Q368,64.14468 368,68.14468 V184 Z" fill="#2563eb"/>
-        <text x="345" y="58.144679999999994" text-anchor="middle" class="val">36,101</text>
-        <text x="345" y="202" text-anchor="middle" class="tick">100</text><path d="M432,184 V51.37536 Q432,47.37536 436,47.37536 H474 Q478,47.37536 478,51.37536 V184 Z" fill="#2563eb"/>
-        <text x="455" y="41.37536" text-anchor="middle" class="val">41,152</text>
-        <text x="455" y="202" text-anchor="middle" class="tick">1,000</text><path d="M542,184 V46.72404 Q542,42.72404 546,42.72404 H584 Q588,42.72404 588,46.72404 V184 Z" fill="#2563eb"/>
-        <text x="565" y="36.72404" text-anchor="middle" class="val">42,553</text>
+    <path d="M102,184 V176.22728 Q102,172.22728 106,172.22728 H144 Q148,172.22728 148,176.22728 V184 Z" fill="#2563eb"/>
+        <text x="125" y="166.22728" text-anchor="middle" class="val">3,546</text>
+        <text x="125" y="202" text-anchor="middle" class="tick">1</text><path d="M212,184 V116.371 Q212,112.371 216,112.371 H254 Q258,112.371 258,116.371 V184 Z" fill="#2563eb"/>
+        <text x="235" y="106.371" text-anchor="middle" class="val">21,575</text>
+        <text x="235" y="202" text-anchor="middle" class="tick">10</text><path d="M322,184 V78.24744000000001 Q322,74.24744000000001 326,74.24744000000001 H364 Q368,74.24744000000001 368,78.24744000000001 V184 Z" fill="#2563eb"/>
+        <text x="345" y="68.24744000000001" text-anchor="middle" class="val">33,058</text>
+        <text x="345" y="202" text-anchor="middle" class="tick">100</text><path d="M432,184 V53.858720000000005 Q432,49.858720000000005 436,49.858720000000005 H474 Q478,49.858720000000005 478,53.858720000000005 V184 Z" fill="#2563eb"/>
+        <text x="455" y="43.858720000000005" text-anchor="middle" class="val">40,404</text>
+        <text x="455" y="202" text-anchor="middle" class="tick">1,000</text><path d="M542,184 V50.810959999999994 Q542,46.810959999999994 546,46.810959999999994 H584 Q588,46.810959999999994 588,50.810959999999994 V184 Z" fill="#2563eb"/>
+        <text x="565" y="40.810959999999994" text-anchor="middle" class="val">41,322</text>
         <text x="565" y="202" text-anchor="middle" class="tick">5,000</text>
     <line x1="70" x2="620" y1="184" y2="184" stroke="#94a3b8"/>
     <text x="345" y="224" text-anchor="middle" class="axis">batch size (rows per round trip)</text>
@@ -284,9 +284,9 @@ The messy email <code>"  Student50@Student.UNI.edu "</code> was <b>trimmed and l
   </svg>
 <table>
 <thead><tr><th class="num">Batch size</th><th class="num">1</th><th class="num">10</th><th class="num">100</th><th class="num">1,000</th><th class="num">5,000</th></tr></thead>
-<tbody><tr><td>Students per second</td><td class="num">4,082</td><td class="num">22,857</td><td class="num">36,101</td><td class="num">41,152</td><td class="num">42,553</td></tr>
-<tr><td>3 runs (ms)</td><td class="num">535 / 490 / 479</td><td class="num">873 / 875 / 892</td><td class="num">528 / 554 / 556</td><td class="num">482 / 486 / 539</td><td class="num">501 / 470 / 469</td></tr></tbody></table>
-<p>Going from 1 row per round trip to 5,000 made it <b>about 10× faster</b>. Above about 1,000 it stops improving, because the
+<tbody><tr><td>Students per second</td><td class="num">3,546</td><td class="num">21,575</td><td class="num">33,058</td><td class="num">40,404</td><td class="num">41,322</td></tr>
+<tr><td>3 runs (ms)</td><td class="num">574 / 519 / 564</td><td class="num">919 / 948 / 927</td><td class="num">558 / 633 / 605</td><td class="num">495 / 486 / 503</td><td class="num">514 / 453 / 484</td></tr></tbody></table>
+<p>Going from 1 row per round trip to 5,000 made it <b>about 12× faster</b>. Above about 1,000 it stops improving, because the
 batches are then big enough that the round trips no longer matter. (The batch size 1 run was measured on 2,000 students, because it is so slow.)</p>
 
 <p><b>2. The source database's statistics.</b> My first benchmark gave strange results. To find the cause, I timed each stage separately and found that the query reading
@@ -295,10 +295,10 @@ instead of jumping straight to the batch's students through the primary key. Run
 <table>
 <thead><tr><th>Query for 1,000 students</th><th class="num">Time</th><th>MySQL's plan</th></tr></thead>
 <tbody>
-<tr><td>Before <code>ANALYZE TABLE</code></td><td class="num">15.8 ms</td><td>Covering index scan on c using uq_courses_title → Index lookup on e using idx_enrollments_course (course_id = c.course_id)</td></tr>
-<tr><td>After <code>ANALYZE TABLE</code></td><td class="num">4.6 ms</td><td>Index range scan on e using PRIMARY over student_id IN (…) → Single-row index lookup on c using PRIMARY (course_id = e.course_id)</td></tr>
+<tr><td>Before <code>ANALYZE TABLE</code></td><td class="num">15 ms</td><td>Covering index scan on c using uq_courses_title → Index lookup on e using idx_enrollments_course (course_id = c.course_id)</td></tr>
+<tr><td>After <code>ANALYZE TABLE</code></td><td class="num">4.9 ms</td><td>Index range scan on e using PRIMARY over student_id IN (…) → Single-row index lookup on c using PRIMARY (course_id = e.course_id)</td></tr>
 </tbody></table>
-<p>That's 3.4× faster for 1,000 ids (and 7.1 → 0.7 ms for 100 ids). My pipeline now refreshes the statistics before extracting.
+<p>That's 3.1× faster for 1,000 ids (and 6.8 → 0.6 ms for 100 ids). My pipeline now refreshes the statistics before extracting.
 The lesson: <b>a migration is only as fast as its slowest query, so check the source's query plans</b> with <code>EXPLAIN</code>.</p>
 
 <p><b>3. Other techniques in the pipeline:</b></p>
@@ -307,7 +307,7 @@ The lesson: <b>a migration is only as fast as its slowest query, so check the so
   <li><b>One query per batch</b> for the enrollments (<code>WHERE student_id IN (…)</code>), not one per student: 20 queries instead of 20,000.</li>
   <li><b>Unordered bulk writes</b> (<code>bulkWrite</code>, <code>ordered: false</code>), so MongoDB can apply each batch efficiently.</li>
   <li><b>Indexes after the load.</b> The usual advice is to build indexes once at the end, not update them on every insert. At this size I measured
-  a <b>small advantage</b> for creating them after the load (median 735 ms with the indexes created first, 623 ms after the load), and the
+  a <b>small advantage</b> for creating them after the load (median 766 ms with the indexes created first, 631 ms after the load), and the
   difference changed from run to run. At 20,000 documents it hardly matters. The advice is for loads of millions of documents.</li>
 </ul>
 
@@ -338,10 +338,10 @@ The lesson: <b>a migration is only as fast as its slowest query, so check the so
 
 <p><b>Does the validation actually catch problems?</b> I broke the target on purpose in 3 ways: student 123: last enrollment removed; student 456: email changed; student 789: document deleted.
 The validation <b>failed, as it should</b>, in 5 different checks:</p>
-<ul><li>count: students: MySQL 20,000, MongoDB 19,999</li><li>count: enrollments (rows vs embedded array items): MySQL 88,152, MongoDB 88,146</li><li>checksum: sum of all ages: MySQL 546,894, MongoDB 546,872</li><li>checksum: number of each grade (A–F, none): MySQL A: 12,308, B: 12,260, C: 13,314, D: 11,072, E: 12,348, F: 12,939, none: 13,911, MongoDB A: 12,307, B: 12,260, C: 13,314, D: 11,071, E: 12,348, F: 12,937, none: 13,909</li><li>sample: 20000 random students compared field by field: MySQL 0, MongoDB 3 (different: 456, 789, 123)</li></ul>
+<ul><li>count: students: MySQL 20,000, MongoDB 19,999</li><li>count: enrollments (rows vs embedded array items): MySQL 88,152, MongoDB 88,146</li><li>checksum: sum of all ages: MySQL 546,894, MongoDB 546,872</li><li>checksum: number of each grade (A–F, none): MySQL A: 12,308, B: 12,260, C: 13,314, D: 11,072, E: 12,348, F: 12,939, none: 13,911, MongoDB A: 12,307, B: 12,260, C: 13,314, D: 11,071, E: 12,348, F: 12,937, none: 13,909</li><li>sample: 20,000 random students compared field by field: MySQL 0, MongoDB 3 (different: 456, 789, 123)</li></ul>
 <p>Then I simply <b>re-ran the migration</b>. Because it is idempotent, it repaired all three problems, and every check passed again with exactly 20,000 students (no duplicates).</p>
 
-<h2 class="pagebreak">7. Practical Application: A Migration Plan</h2>
+<h2>7. Practical Application: A Migration Plan</h2>
 <p><b>The scenario:</b> a university runs its student system on MySQL (the schema from my previous SQL checkpoint): departments, instructors, courses, students and enrollments.
 The student portal is slow because every "my courses" page joins three tables, and the university wants to move the portal to MongoDB.</p>
 

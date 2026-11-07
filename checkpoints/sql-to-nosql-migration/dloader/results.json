@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-07T16:14:56.320Z",
+  "generatedAt": "2026-11-07T16:17:08.995Z",
   "versions": {
     "mysql": "9.7.4",
     "mongodb": "8.2.6",
@@ -11,7 +11,7 @@
     "courses": 300,
     "students": 20000,
     "enrollments": 88152,
-    "seedMs": 975
+    "seedMs": 819
   },
   "example": {
     "sqlStudent": {
@@ -77,7 +77,7 @@
     "before": [
       {
         "ids": 50,
-        "ms": 0.5,
+        "ms": 0.6,
         "plan": [
           "Covering index scan on c using uq_courses_title",
           "Index lookup on e using idx_enrollments_course (course_id = c.course_id)"
@@ -85,7 +85,7 @@
       },
       {
         "ids": 100,
-        "ms": 7.1,
+        "ms": 6.8,
         "plan": [
           "Covering index scan on c using uq_courses_title",
           "Index lookup on e using idx_enrollments_course (course_id = c.course_id)"
@@ -93,7 +93,7 @@
       },
       {
         "ids": 1000,
-        "ms": 15.8,
+        "ms": 15,
         "plan": [
           "Covering index scan on c using uq_courses_title",
           "Index lookup on e using idx_enrollments_course (course_id = c.course_id)"
@@ -111,7 +111,7 @@
       },
       {
         "ids": 100,
-        "ms": 0.7,
+        "ms": 0.6,
         "plan": [
           "Index range scan on e using PRIMARY over student_id IN (…)",
           "Single-row index lookup on c using PRIMARY (course_id = e.course_id)"
@@ -119,7 +119,7 @@
       },
       {
         "ids": 1000,
-        "ms": 4.6,
+        "ms": 4.9,
         "plan": [
           "Index range scan on e using PRIMARY over student_id IN (…)",
           "Single-row index lookup on c using PRIMARY (course_id = e.course_id)"
@@ -133,12 +133,12 @@
       "departments": {
         "rows": 8,
         "documents": 8,
-        "ms": 43
+        "ms": 46
       },
       "instructors": {
         "rows": 60,
         "documents": 60,
-        "ms": 15
+        "ms": 17
       },
       "courses": {
         "rows": 300,
@@ -149,13 +149,13 @@
         "rows": 20000,
         "documents": 20000,
         "embeddedEnrollments": 88152,
-        "ms": 476
+        "ms": 494
       }
     },
-    "startedAt": 1794068097926,
-    "indexMs": 179,
-    "totalMs": 738,
-    "docsPerSecond": 27599
+    "startedAt": 1794068230415,
+    "indexMs": 155,
+    "totalMs": 736,
+    "docsPerSecond": 27674
   },
   "validation": {
     "ok": true,
@@ -297,7 +297,7 @@
         "detail": ""
       },
       {
-        "name": "sample: 20000 random students compared field by field",
+        "name": "sample: 20,000 random students compared field by field",
         "sql": 0,
         "mongo": 3,
         "detail": "different: 456, 789, 123"
@@ -306,7 +306,7 @@
   },
   "rerun": {
     "ok": true,
-    "ms": 350,
+    "ms": 351,
     "studentCount": 20000
   },
   "sizes": {
@@ -324,78 +324,78 @@
     {
       "batchSize": 1,
       "students": 2000,
-      "ms": 490,
+      "ms": 564,
       "runs": [
-        535,
-        490,
-        479
+        574,
+        519,
+        564
       ],
-      "perSecond": 4082
+      "perSecond": 3546
     },
     {
       "batchSize": 10,
       "students": 20000,
-      "ms": 875,
+      "ms": 927,
       "runs": [
-        873,
-        875,
-        892
+        919,
+        948,
+        927
       ],
-      "perSecond": 22857
+      "perSecond": 21575
     },
     {
       "batchSize": 100,
       "students": 20000,
-      "ms": 554,
+      "ms": 605,
       "runs": [
-        528,
-        554,
-        556
+        558,
+        633,
+        605
       ],
-      "perSecond": 36101
+      "perSecond": 33058
     },
     {
       "batchSize": 1000,
       "students": 20000,
-      "ms": 486,
+      "ms": 495,
       "runs": [
-        482,
+        495,
         486,
-        539
+        503
       ],
-      "perSecond": 41152
+      "perSecond": 40404
     },
     {
       "batchSize": 5000,
       "students": 20000,
-      "ms": 470,
+      "ms": 484,
       "runs": [
-        501,
-        470,
-        469
+        514,
+        453,
+        484
       ],
-      "perSecond": 42553
+      "perSecond": 41322
     }
   ],
   "indexTiming": {
     "before": [
-      735,
-      679,
-      859
+      778,
+      761,
+      766
     ],
     "after": [
-      602,
-      648,
-      623
+      631,
+      631,
+      618
     ],
-    "beforeMedian": 735,
-    "afterMedian": 623
+    "beforeMedian": 766,
+    "afterMedian": 631
   },
   "queryExample": {
     "sqlRows": 3,
     "mongoDocs": 1,
     "mongoEnrollments": 3,
-    "sqlMs": 0,
+    "sqlMs": 1,
     "mongoMs": 1
   }
 }
