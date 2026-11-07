@@ -1,0 +1,97 @@
+{
+  "branches": [
+    "Tunis",
+    "Sousse",
+    "Sfax"
+  ],
+  "central": {
+    "customers": 12,
+    "accounts": 18,
+    "transactions": 6000
+  },
+  "horizontal": {
+    "sql": [
+      "CREATE TABLE bank_tunis.customers AS\n  SELECT customer_id, full_name, branch, phone, address\n  FROM bank_central.customers\n  WHERE branch = 'Tunis'",
+      "CREATE TABLE bank_sousse.customers AS\n  SELECT customer_id, full_name, branch, phone, address\n  FROM bank_central.customers\n  WHERE branch = 'Sousse'",
+      "CREATE TABLE bank_sfax.customers AS\n  SELECT customer_id, full_name, branch, phone, address\n  FROM bank_central.customers\n  WHERE branch = 'Sfax'"
+    ],
+    "fragments": {
+      "Tunis": [
+        "1 Amira Ben Salah",
+        "4 Dhia Mansour",
+        "5 Emna Jaziri",
+        "10 Karim Zouari"
+      ],
+      "Sousse": [
+        "2 Bilel Trabelsi",
+        "6 Fares Bouazizi",
+        "9 Ines Chaabane",
+        "12 Mehdi Saidi"
+      ],
+      "Sfax": [
+        "3 Cyrine Gharbi",
+        "7 Ghada Kallel",
+        "8 Hamza Dridi",
+        "11 Lina Haddad"
+      ]
+    },
+    "counts": {
+      "Tunis": 4,
+      "Sousse": 4,
+      "Sfax": 4
+    },
+    "completeness": true,
+    "disjointness": true,
+    "reconstruction": true,
+    "wrongSiteInsertRejected": "ER_CHECK_CONSTRAINT_VIOLATED"
+  },
+  "vertical": {
+    "sql": "CREATE TABLE bank_auth.customer_login AS\n  SELECT customer_id, email, password_hash, last_login\n  FROM bank_central.customers",
+    "branchColumns": [
+      "customer_id",
+      "full_name",
+      "branch",
+      "phone",
+      "address"
+    ],
+    "loginColumns": [
+      "customer_id",
+      "email",
+      "password_hash",
+      "last_login"
+    ],
+    "reconstruction": true
+  },
+  "derived": {
+    "perBranch": {
+      "Tunis": {
+        "accounts": 6,
+        "transactions": 2085
+      },
+      "Sousse": {
+        "accounts": 5,
+        "transactions": 1620
+      },
+      "Sfax": {
+        "accounts": 7,
+        "transactions": 2295
+      }
+    },
+    "accountsComplete": true,
+    "transactionsComplete": true
+  },
+  "replication": {
+    "directoryRowsPerSite": {
+      "Tunis": 12,
+      "Sousse": 12,
+      "Sfax": 12
+    },
+    "example": {
+      "visitingBranch": "Sfax",
+      "customer": "Amira Ben Salah",
+      "homeBranch": "Tunis",
+      "balanceReadFrom": "bank_tunis",
+      "balance": 7173.79
+    }
+  }
+}

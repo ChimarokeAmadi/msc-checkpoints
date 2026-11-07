@@ -1,0 +1,20 @@
+{
+  "name": "transactions-distributed-db",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "concurrency": "node demo/concurrency.js",
+    "distribution": "node demo/distribution.js",
+    "report": "node report/build-report.js",
+    "all": "node demo/concurrency.js && node demo/distribution.js && node report/build-report.js"
+  },
+  "keywords": [],
+  "author": "Chimaroke Amadi",
+  "license": "ISC",
+  "description": "Concurrency control and distributed database design for a mini bank",
+  "dependencies": {
+    "mysql-memory-server": "^1.18.0",
+    "mysql2": "^3.24.6"
+  }
+}

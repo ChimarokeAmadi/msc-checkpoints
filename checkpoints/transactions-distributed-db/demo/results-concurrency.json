@@ -1,0 +1,261 @@
+{
+  "mysqlVersion": "9.7.4",
+  "defaultIsolation": "REPEATABLE-READ",
+  "start": {
+    "1": 1000,
+    "2": 500,
+    "3": 300
+  },
+  "expected": {
+    "1": 500,
+    "2": 700,
+    "3": 600
+  },
+  "scenarios": [
+    {
+      "name": "No locking",
+      "final": {
+        "1": 700,
+        "2": 700,
+        "3": 600
+      },
+      "total": 2000,
+      "expectedTotal": 1800,
+      "correct": false,
+      "timeline": [
+        {
+          "step": 1,
+          "t1": "read(A) = 1000",
+          "t2": "",
+          "committedA": 1000,
+          "note": ""
+        },
+        {
+          "step": 2,
+          "t1": "",
+          "t2": "read(A) = 1000",
+          "committedA": 1000,
+          "note": "T2 reads the same old value"
+        },
+        {
+          "step": 3,
+          "t1": "write(A = 800), B += 200",
+          "t2": "",
+          "committedA": 1000,
+          "note": ""
+        },
+        {
+          "step": 4,
+          "t1": "COMMIT",
+          "t2": "",
+          "committedA": 800,
+          "note": ""
+        },
+        {
+          "step": 5,
+          "t1": "",
+          "t2": "write(A = 700), C += 300",
+          "committedA": 800,
+          "note": "overwrites T1's write: LOST UPDATE"
+        },
+        {
+          "step": 6,
+          "t1": "",
+          "t2": "COMMIT",
+          "committedA": 700,
+          "note": ""
+        }
+      ],
+      "safe": false
+    },
+    {
+      "name": "Shared locks only",
+      "final": {
+        "1": 500,
+        "2": 700,
+        "3": 600
+      },
+      "total": 1800,
+      "expectedTotal": 1800,
+      "correct": true,
+      "timeline": [
+        {
+          "step": 1,
+          "t1": "S-lock(A), read(A) = 1000",
+          "t2": "",
+          "committedA": 1000,
+          "note": ""
+        },
+        {
+          "step": 2,
+          "t1": "",
+          "t2": "S-lock(A), read(A) = 1000",
+          "committedA": 1000,
+          "note": "shared locks are compatible"
+        },
+        {
+          "step": 3,
+          "t1": "write(A) → needs X-lock, WAITS for T2",
+          "t2": "",
+          "committedA": 1000,
+          "note": ""
+        },
+        {
+          "step": 4,
+          "t1": "",
+          "t2": "write(A) → DEADLOCK, rolled back",
+          "committedA": 1000,
+          "note": "MySQL error 1213 ER_LOCK_DEADLOCK"
+        },
+        {
+          "step": 5,
+          "t1": "lock granted, write(A = 800), B += 200, COMMIT",
+          "t2": "",
+          "committedA": 800,
+          "note": ""
+        },
+        {
+          "step": 6,
+          "t1": "",
+          "t2": "retry: read(A) = 800, write(A = 500), COMMIT",
+          "committedA": 500,
+          "note": ""
+        }
+      ],
+      "safe": false,
+      "deadlock": {
+        "code": "ER_LOCK_DEADLOCK",
+        "errno": 1213,
+        "message": "Deadlock found when trying to get lock; try restarting transaction"
+      }
+    },
+    {
+      "name": "Pessimistic (exclusive lock)",
+      "final": {
+        "1": 500,
+        "2": 700,
+        "3": 600
+      },
+      "total": 1800,
+      "expectedTotal": 1800,
+      "correct": true,
+      "timeline": [
+        {
+          "step": 1,
+          "t1": "X-lock(A, B), read(A) = 1000",
+          "t2": "",
+          "committedA": 1000,
+          "note": ""
+        },
+        {
+          "step": 2,
+          "t1": "",
+          "t2": "X-lock(A) requested → WAITS",
+          "committedA": 1000,
+          "note": "blocked by T1"
+        },
+        {
+          "step": 3,
+          "t1": "write(A = 800), B += 200",
+          "t2": "",
+          "committedA": 1000,
+          "note": ""
+        },
+        {
+          "step": 4,
+          "t1": "COMMIT (releases locks)",
+          "t2": "",
+          "committedA": 800,
+          "note": ""
+        },
+        {
+          "step": 5,
+          "t1": "",
+          "t2": "lock granted, read(A) = 800",
+          "committedA": 800,
+          "note": "T2 sees the NEW value"
+        },
+        {
+          "step": 6,
+          "t1": "",
+          "t2": "write(A = 500), C += 300",
+          "committedA": 800,
+          "note": ""
+        },
+        {
+          "step": 7,
+          "t1": "",
+          "t2": "COMMIT",
+          "committedA": 500,
+          "note": ""
+        }
+      ],
+      "safe": true,
+      "t2WasBlocked": true,
+      "waitedMs": 311
+    },
+    {
+      "name": "Optimistic (version check)",
+      "final": {
+        "1": 500,
+        "2": 700,
+        "3": 600
+      },
+      "total": 1800,
+      "expectedTotal": 1800,
+      "correct": true,
+      "timeline": [
+        {
+          "step": 1,
+          "t1": "read(A) = 1000, version 0",
+          "t2": "",
+          "committedA": 1000,
+          "note": ""
+        },
+        {
+          "step": 2,
+          "t1": "",
+          "t2": "read(A) = 1000, version 0",
+          "committedA": 1000,
+          "note": ""
+        },
+        {
+          "step": 3,
+          "t1": "write(A = 800) if version = 0 → 1 row, COMMIT",
+          "t2": "",
+          "committedA": 800,
+          "note": ""
+        },
+        {
+          "step": 4,
+          "t1": "",
+          "t2": "write(A) if version = 0 → 0 rows: CONFLICT, rollback",
+          "committedA": 800,
+          "note": "version changed since T2 read it"
+        },
+        {
+          "step": 5,
+          "t1": "",
+          "t2": "retry: read(A) = 800 v1, write(A = 500) → 1 row, COMMIT",
+          "committedA": 500,
+          "note": ""
+        }
+      ],
+      "safe": true,
+      "conflicts": 1
+    }
+  ],
+  "dirtyRead": {
+    "READ UNCOMMITTED": {
+      "seen": 800,
+      "afterRollback": 1000,
+      "dirty": true
+    },
+    "READ COMMITTED": {
+      "seen": 1000,
+      "afterRollback": 1000,
+      "dirty": false
+    }
+  },
+  "generatedAt": "2026-11-07T13:55:31.983Z"
+}
