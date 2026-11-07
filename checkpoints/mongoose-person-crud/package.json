@@ -1,0 +1,24 @@
+{
+  "name": "mongoose-person-crud",
+  "version": "1.0.0",
+  "main": "myApp.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "node --test",
+    "start": "node index.js",
+    "local": "node index.js --local"
+  },
+  "keywords": [],
+  "author": "Chimaroke Amadi",
+  "license": "ISC",
+  "description": "MongoDB and Mongoose checkpoint: Person CRUD",
+  "dependencies": {
+    "mongodb": "^7.8.0",
+    "mongoose": "^9.12.0"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.3.0"
+  }
+}
