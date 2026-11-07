@@ -1,0 +1,17 @@
+{
+  "name": "university-database",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node run.js"
+  },
+  "keywords": [],
+  "author": "Chimaroke Amadi",
+  "license": "ISC",
+  "description": "Normalized university database (MySQL) with constraints, sample data and queries",
+  "dependencies": {
+    "mysql-memory-server": "^1.18.0",
+    "mysql2": "^3.24.6"
+  }
+}

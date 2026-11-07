@@ -1,0 +1,122 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 890 470" width="1780" height="940">
+<style>
+  .th{font:700 14px Helvetica,Arial,sans-serif;fill:#fff}
+  .col{font:13px Helvetica,Arial,sans-serif;fill:#0f172a}
+  .pk{font-weight:700;text-decoration:underline}
+  .key{font:700 9.5px Helvetica,Arial,sans-serif;fill:#b45309}
+  .type{font:10.5px Menlo,monospace;fill:#64748b}
+  .card{font:700 13px Helvetica,Arial,sans-serif;fill:#b91c1c}
+  .rel{font:italic 11.5px Helvetica,Arial,sans-serif;fill:#475569}
+  .title{font:700 15px Helvetica,Arial,sans-serif;fill:#0f172a}
+  .note{font:11px Helvetica,Arial,sans-serif;fill:#64748b}
+</style>
+<rect width="890" height="470" fill="#f8fafc"/>
+<text x="20" y="20" class="title">University database: relational model (3NF)</text>
+
+  <polyline points="250,73 330,139" fill="none" stroke="#475569" stroke-width="1.6"/>
+  <text x="256" y="67" class="card">1</text>
+  <text x="314" y="133" class="card">N</text>
+  <text x="290" y="48" text-anchor="middle" class="rel">belongs to</text>
+
+  <polyline points="560,73 640,139" fill="none" stroke="#475569" stroke-width="1.6"/>
+  <text x="566" y="67" class="card">0..1</text>
+  <text x="624" y="133" class="card">N</text>
+  <text x="600" y="48" text-anchor="middle" class="rel">teaches</text>
+
+  <polyline points="755,156 755,290" fill="none" stroke="#475569" stroke-width="1.6"/>
+  <text x="761" y="172" class="card">1</text>
+  <text x="761" y="284" class="card">N</text>
+  <text x="777" y="230" class="rel">has</text>
+
+  <polyline points="250,333 640,333" fill="none" stroke="#475569" stroke-width="1.6"/>
+  <text x="256" y="327" class="card">1</text>
+  <text x="624" y="327" class="card">N</text>
+  <text x="420" y="325" class="rel">enrolls in</text>
+
+  <g>
+    <rect x="20" y="30" width="230" height="82" rx="8" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/>
+    <path d="M20 38 a8 8 0 0 1 8 -8 h214 a8 8 0 0 1 8 8 v24 h-230 z" fill="#1e3a8a"/>
+    <text x="135" y="51" text-anchor="middle" class="th">departments</text>
+    
+      <text x="30" y="77" class="key">PK</text>
+      <text x="72" y="77" class="col pk">department_id</text>
+      <text x="240" y="77" text-anchor="end" class="type">INT</text>
+      <text x="30" y="99" class="key"></text>
+      <text x="72" y="99" class="col">name</text>
+      <text x="240" y="99" text-anchor="end" class="type">VARCHAR(80) UQ</text>
+  </g>
+  <g>
+    <rect x="330" y="30" width="230" height="126" rx="8" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/>
+    <path d="M330 38 a8 8 0 0 1 8 -8 h214 a8 8 0 0 1 8 8 v24 h-230 z" fill="#1e3a8a"/>
+    <text x="445" y="51" text-anchor="middle" class="th">instructors</text>
+    
+      <text x="340" y="77" class="key">PK</text>
+      <text x="382" y="77" class="col pk">instructor_id</text>
+      <text x="550" y="77" text-anchor="end" class="type">INT</text>
+      <text x="340" y="99" class="key"></text>
+      <text x="382" y="99" class="col">full_name</text>
+      <text x="550" y="99" text-anchor="end" class="type">VARCHAR(100)</text>
+      <text x="340" y="121" class="key"></text>
+      <text x="382" y="121" class="col">email</text>
+      <text x="550" y="121" text-anchor="end" class="type">VARCHAR(120) UQ</text>
+      <text x="340" y="143" class="key">FK</text>
+      <text x="382" y="143" class="col">department_id</text>
+      <text x="550" y="143" text-anchor="end" class="type">INT</text>
+  </g>
+  <g>
+    <rect x="640" y="30" width="230" height="126" rx="8" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/>
+    <path d="M640 38 a8 8 0 0 1 8 -8 h214 a8 8 0 0 1 8 8 v24 h-230 z" fill="#1e3a8a"/>
+    <text x="755" y="51" text-anchor="middle" class="th">courses</text>
+    
+      <text x="650" y="77" class="key">PK</text>
+      <text x="692" y="77" class="col pk">course_id</text>
+      <text x="860" y="77" text-anchor="end" class="type">INT</text>
+      <text x="650" y="99" class="key"></text>
+      <text x="692" y="99" class="col">title</text>
+      <text x="860" y="99" text-anchor="end" class="type">VARCHAR(120) UQ</text>
+      <text x="650" y="121" class="key"></text>
+      <text x="692" y="121" class="col">credits</text>
+      <text x="860" y="121" text-anchor="end" class="type">TINYINT 1–10</text>
+      <text x="650" y="143" class="key">FK</text>
+      <text x="692" y="143" class="col">instructor_id</text>
+      <text x="860" y="143" text-anchor="end" class="type">INT NULL</text>
+  </g>
+  <g>
+    <rect x="20" y="290" width="230" height="126" rx="8" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/>
+    <path d="M20 298 a8 8 0 0 1 8 -8 h214 a8 8 0 0 1 8 8 v24 h-230 z" fill="#1e3a8a"/>
+    <text x="135" y="311" text-anchor="middle" class="th">students</text>
+    
+      <text x="30" y="337" class="key">PK</text>
+      <text x="72" y="337" class="col pk">student_id</text>
+      <text x="240" y="337" text-anchor="end" class="type">INT</text>
+      <text x="30" y="359" class="key"></text>
+      <text x="72" y="359" class="col">full_name</text>
+      <text x="240" y="359" text-anchor="end" class="type">VARCHAR(100)</text>
+      <text x="30" y="381" class="key"></text>
+      <text x="72" y="381" class="col">email</text>
+      <text x="240" y="381" text-anchor="end" class="type">VARCHAR(120) UQ</text>
+      <text x="30" y="403" class="key"></text>
+      <text x="72" y="403" class="col">age</text>
+      <text x="240" y="403" text-anchor="end" class="type">TINYINT > 17</text>
+  </g>
+  <g>
+    <rect x="640" y="290" width="230" height="126" rx="8" fill="#fff" stroke="#1e3a8a" stroke-width="1.5"/>
+    <path d="M640 298 a8 8 0 0 1 8 -8 h214 a8 8 0 0 1 8 8 v24 h-230 z" fill="#1e3a8a"/>
+    <text x="755" y="311" text-anchor="middle" class="th">enrollments</text>
+    
+      <text x="650" y="337" class="key">PK FK</text>
+      <text x="692" y="337" class="col pk">student_id</text>
+      <text x="860" y="337" text-anchor="end" class="type">INT</text>
+      <text x="650" y="359" class="key">PK FK</text>
+      <text x="692" y="359" class="col pk">course_id</text>
+      <text x="860" y="359" text-anchor="end" class="type">INT</text>
+      <text x="650" y="381" class="key"></text>
+      <text x="692" y="381" class="col">grade</text>
+      <text x="860" y="381" text-anchor="end" class="type">CHAR(1) A–F / NULL</text>
+      <text x="650" y="403" class="key"></text>
+      <text x="692" y="403" class="col">enrolled_on</text>
+      <text x="860" y="403" text-anchor="end" class="type">DATE</text>
+  </g>
+<text x="20" y="440" class="note">PK = primary key · FK = foreign key · UQ = UNIQUE · enrollments has a composite PK (student_id, course_id)</text>
+<text x="20" y="458" class="note">ON DELETE: course/student → CASCADE enrollments · instructor → SET NULL on courses · department → RESTRICT</text>
+</svg>
