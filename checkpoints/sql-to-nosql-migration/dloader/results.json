@@ -1,0 +1,401 @@
+{
+  "generatedAt": "2026-11-07T16:14:56.320Z",
+  "versions": {
+    "mysql": "9.7.4",
+    "mongodb": "8.2.6",
+    "node": "v20.19.4"
+  },
+  "source": {
+    "departments": 8,
+    "instructors": 60,
+    "courses": 300,
+    "students": 20000,
+    "enrollments": 88152,
+    "seedMs": 975
+  },
+  "example": {
+    "sqlStudent": {
+      "student_id": 50,
+      "full_name": "Ibrahim Danjuma",
+      "email": "  Student50@Student.UNI.edu ",
+      "age": 18
+    },
+    "sqlEnrollments": [
+      {
+        "student_id": 50,
+        "course_id": 104,
+        "grade": "C",
+        "enrolled_on": "2026-09-03"
+      },
+      {
+        "student_id": 50,
+        "course_id": 145,
+        "grade": "F",
+        "enrolled_on": "2026-09-08"
+      },
+      {
+        "student_id": 50,
+        "course_id": 228,
+        "grade": "D",
+        "enrolled_on": "2026-09-08"
+      }
+    ],
+    "mongoStudent": {
+      "_id": 50,
+      "full_name": "Ibrahim Danjuma",
+      "email": "student50@student.uni.edu",
+      "age": 18,
+      "enrollments": [
+        {
+          "course_id": 104,
+          "course_title": "Linear Algebra 110",
+          "grade": "C",
+          "enrolled_on": "2026-09-03T00:00:00.000Z"
+        },
+        {
+          "course_id": 145,
+          "course_title": "Networks 114",
+          "grade": "F",
+          "enrolled_on": "2026-09-08T00:00:00.000Z"
+        },
+        {
+          "course_id": 228,
+          "course_title": "Microeconomics 122",
+          "grade": "D",
+          "enrolled_on": "2026-09-08T00:00:00.000Z"
+        }
+      ],
+      "enrollment_count": 3
+    },
+    "mongoCourse": {
+      "_id": 104,
+      "title": "Linear Algebra 110",
+      "credits": 5
+    }
+  },
+  "statistics": {
+    "before": [
+      {
+        "ids": 50,
+        "ms": 0.5,
+        "plan": [
+          "Covering index scan on c using uq_courses_title",
+          "Index lookup on e using idx_enrollments_course (course_id = c.course_id)"
+        ]
+      },
+      {
+        "ids": 100,
+        "ms": 7.1,
+        "plan": [
+          "Covering index scan on c using uq_courses_title",
+          "Index lookup on e using idx_enrollments_course (course_id = c.course_id)"
+        ]
+      },
+      {
+        "ids": 1000,
+        "ms": 15.8,
+        "plan": [
+          "Covering index scan on c using uq_courses_title",
+          "Index lookup on e using idx_enrollments_course (course_id = c.course_id)"
+        ]
+      }
+    ],
+    "after": [
+      {
+        "ids": 50,
+        "ms": 0.4,
+        "plan": [
+          "Index range scan on e using PRIMARY over student_id IN (…)",
+          "Single-row index lookup on c using PRIMARY (course_id = e.course_id)"
+        ]
+      },
+      {
+        "ids": 100,
+        "ms": 0.7,
+        "plan": [
+          "Index range scan on e using PRIMARY over student_id IN (…)",
+          "Single-row index lookup on c using PRIMARY (course_id = e.course_id)"
+        ]
+      },
+      {
+        "ids": 1000,
+        "ms": 4.6,
+        "plan": [
+          "Index range scan on e using PRIMARY over student_id IN (…)",
+          "Single-row index lookup on c using PRIMARY (course_id = e.course_id)"
+        ]
+      }
+    ]
+  },
+  "migration": {
+    "batchSize": 1000,
+    "collections": {
+      "departments": {
+        "rows": 8,
+        "documents": 8,
+        "ms": 43
+      },
+      "instructors": {
+        "rows": 60,
+        "documents": 60,
+        "ms": 15
+      },
+      "courses": {
+        "rows": 300,
+        "documents": 300,
+        "ms": 20
+      },
+      "students": {
+        "rows": 20000,
+        "documents": 20000,
+        "embeddedEnrollments": 88152,
+        "ms": 476
+      }
+    },
+    "startedAt": 1794068097926,
+    "indexMs": 179,
+    "totalMs": 738,
+    "docsPerSecond": 27599
+  },
+  "validation": {
+    "ok": true,
+    "checks": [
+      {
+        "name": "count: departments",
+        "sql": 8,
+        "mongo": 8,
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "count: instructors",
+        "sql": 60,
+        "mongo": 60,
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "count: courses",
+        "sql": 300,
+        "mongo": 300,
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "count: students",
+        "sql": 20000,
+        "mongo": 20000,
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "count: enrollments (rows vs embedded array items)",
+        "sql": 88152,
+        "mongo": 88152,
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "checksum: sum of all ages",
+        "sql": 546894,
+        "mongo": 546894,
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "checksum: number of each grade (A–F, none)",
+        "sql": {
+          "A": 12308,
+          "B": 12260,
+          "C": 13314,
+          "D": 11072,
+          "E": 12348,
+          "F": 12939,
+          "none": 13911
+        },
+        "mongo": {
+          "A": 12308,
+          "B": 12260,
+          "C": 13314,
+          "D": 11072,
+          "E": 12348,
+          "F": 12939,
+          "none": 13911
+        },
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "checksum: total credits",
+        "sql": 1031,
+        "mongo": 1031,
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "integrity: enrollments pointing to a missing course",
+        "sql": 0,
+        "mongo": 0,
+        "ok": true,
+        "detail": ""
+      },
+      {
+        "name": "sample: 200 random students compared field by field",
+        "sql": 0,
+        "mongo": 0,
+        "ok": true,
+        "detail": ""
+      }
+    ]
+  },
+  "faultInjection": {
+    "injected": [
+      "student 123: last enrollment removed",
+      "student 456: email changed",
+      "student 789: document deleted"
+    ],
+    "ok": false,
+    "failedChecks": [
+      {
+        "name": "count: students",
+        "sql": 20000,
+        "mongo": 19999,
+        "detail": ""
+      },
+      {
+        "name": "count: enrollments (rows vs embedded array items)",
+        "sql": 88152,
+        "mongo": 88146,
+        "detail": ""
+      },
+      {
+        "name": "checksum: sum of all ages",
+        "sql": 546894,
+        "mongo": 546872,
+        "detail": ""
+      },
+      {
+        "name": "checksum: number of each grade (A–F, none)",
+        "sql": {
+          "A": 12308,
+          "B": 12260,
+          "C": 13314,
+          "D": 11072,
+          "E": 12348,
+          "F": 12939,
+          "none": 13911
+        },
+        "mongo": {
+          "A": 12307,
+          "B": 12260,
+          "C": 13314,
+          "D": 11071,
+          "E": 12348,
+          "F": 12937,
+          "none": 13909
+        },
+        "detail": ""
+      },
+      {
+        "name": "sample: 20000 random students compared field by field",
+        "sql": 0,
+        "mongo": 3,
+        "detail": "different: 456, 789, 123"
+      }
+    ]
+  },
+  "rerun": {
+    "ok": true,
+    "ms": 350,
+    "studentCount": 20000
+  },
+  "sizes": {
+    "mysql": {
+      "data": 6373376,
+      "indexes": 4308992
+    },
+    "mongo": {
+      "data": 2686976,
+      "logical": 10658231,
+      "indexes": 1576960
+    }
+  },
+  "batchSizes": [
+    {
+      "batchSize": 1,
+      "students": 2000,
+      "ms": 490,
+      "runs": [
+        535,
+        490,
+        479
+      ],
+      "perSecond": 4082
+    },
+    {
+      "batchSize": 10,
+      "students": 20000,
+      "ms": 875,
+      "runs": [
+        873,
+        875,
+        892
+      ],
+      "perSecond": 22857
+    },
+    {
+      "batchSize": 100,
+      "students": 20000,
+      "ms": 554,
+      "runs": [
+        528,
+        554,
+        556
+      ],
+      "perSecond": 36101
+    },
+    {
+      "batchSize": 1000,
+      "students": 20000,
+      "ms": 486,
+      "runs": [
+        482,
+        486,
+        539
+      ],
+      "perSecond": 41152
+    },
+    {
+      "batchSize": 5000,
+      "students": 20000,
+      "ms": 470,
+      "runs": [
+        501,
+        470,
+        469
+      ],
+      "perSecond": 42553
+    }
+  ],
+  "indexTiming": {
+    "before": [
+      735,
+      679,
+      859
+    ],
+    "after": [
+      602,
+      648,
+      623
+    ],
+    "beforeMedian": 735,
+    "afterMedian": 623
+  },
+  "queryExample": {
+    "sqlRows": 3,
+    "mongoDocs": 1,
+    "mongoEnrollments": 3,
+    "sqlMs": 0,
+    "mongoMs": 1
+  }
+}

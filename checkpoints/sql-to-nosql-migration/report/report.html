@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8">
+<title>SQL to NoSQL Migration with DLoader</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 18mm; }
+  * { box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif; color: #1e293b; font-size: 10.3pt; line-height: 1.5; margin: 0; }
+  h1 { font-size: 21pt; margin: 0 0 4px; color: #0f172a; }
+  h2 { font-size: 14.5pt; margin: 24px 0 8px; padding-bottom: 4px; border-bottom: 2px solid #2563eb; color: #1e3a8a; break-after: avoid; }
+  h3 { font-size: 11.5pt; margin: 16px 0 6px; color: #0f172a; break-after: avoid; }
+  p { margin: 6px 0; } ul, ol { margin: 6px 0; padding-left: 22px; } li { margin: 2px 0; }
+  .meta { color: #64748b; margin-bottom: 12px; }
+  .lead { background: #eff6ff; border-left: 4px solid #2563eb; padding: 9px 13px; border-radius: 4px; }
+  .note-box { background: #fffbeb; border-left: 4px solid #d97706; padding: 9px 13px; border-radius: 4px; margin: 10px 0; break-inside: avoid; }
+  .answer { background: #f0fdf4; border-left: 4px solid #16a34a; padding: 8px 13px; border-radius: 4px; margin: 10px 0; break-inside: avoid; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0; font-size: 9pt; break-inside: avoid; }
+  caption { text-align: left; font-weight: 600; margin-bottom: 4px; color: #334155; }
+  th, td { border: 1px solid #cbd5e1; padding: 4px 7px; vertical-align: top; text-align: left; }
+  th { background: #f1f5f9; }
+  td.num, th.num { text-align: right; white-space: nowrap; }
+  table.checks { table-layout: fixed; } table.checks td.num { white-space: normal; }
+  table.mini { font-size: 7.8pt; width: auto; } table.mini td, table.mini th { padding: 2px 5px; }
+  .good { color: #15803d; font-weight: 600; } .bad { color: #b91c1c; font-weight: 600; }
+  code, pre { font-family: 'SF Mono', Menlo, Consolas, monospace; font-size: 8.4pt; }
+  code { background: #f1f5f9; padding: 1px 4px; border-radius: 3px; }
+  pre { background: #0f172a; color: #e2e8f0; padding: 9px 11px; border-radius: 6px; white-space: pre-wrap; break-inside: avoid; margin: 6px 0; }
+  .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+  .diagram, .chart { width: 100%; height: auto; display: block; margin: 6px auto; break-inside: avoid; }
+  .chart { width: 85%; }
+  .diagram .h { font: 700 12px sans-serif; fill: #0f172a; } .diagram .bt { font: 700 11px sans-serif; fill: #0f172a; }
+  .diagram .bl { font: 10px monospace; fill: #334155; } .diagram .note { font: italic 9.5px sans-serif; fill: #1d4ed8; }
+  .chart .tick { font: 10px sans-serif; fill: #64748b; } .chart .val { font: 600 10px sans-serif; fill: #334155; } .chart .axis { font: 10.5px sans-serif; fill: #475569; }
+  .src { font-size: 8.6pt; color: #475569; } .src li { margin: 3px 0; overflow-wrap: anywhere; }
+  .pagebreak { break-before: page; }
+  footer { margin-top: 18px; color: #64748b; font-size: 8.5pt; border-top: 1px solid #e2e8f0; padding-top: 6px; }
+</style></head><body>
+
+<h1>Migrating Data from SQL to NoSQL with DLoader</h1>
+<div class="meta">Chimaroke Amadi · GoMyCode MSC checkpoint · 7 November 2026</div>
+
+<p class="lead">To understand the topic properly, I did more than research it. I <b>built a small DLoader-style pipeline</b> and used it to migrate a real
+MySQL 9.7.4 database (108,520 rows) into MongoDB 8.2.6. I then <b>checked</b> that nothing was lost
+and measured what makes it fast or slow. Every number in this report comes from that run (<code>dloader/run.js</code>).</p>
+
+<div class="note-box"><b>What I could and couldn't verify about DLoader.</b> DLoader is not a commercial product. It comes from a research paper:
+<i>"DLoader: Migration of Data from SQL to NoSQL Databases"</i> by K. Rajaram, P. Sharma and S. Selvakumar, published in the Springer
+<i>Proceedings of the International Conference on Cognitive and Intelligent Computing</i> (2023, pp. 193–204). The full text is behind a paywall, and I found
+no public download or source code for the tool. So in this report, statements marked <b>(paper)</b> come from what is publicly known about the paper.
+Everything else is general migration practice, which I tested with my own implementation of the same three stages.</div>
+
+<h2>1. Introduction to Data Migration</h2>
+<h3>What is data migration, and why is it important?</h3>
+<p><b>Data migration</b> means moving data from one storage system to another, here from a relational (SQL) database to a NoSQL database. It usually
+also involves changing the <i>shape</i> of the data, because the two systems organize it differently. Companies migrate when their needs change:
+more traffic than one server can handle, data that no longer fits a fixed schema, the need to spread data across regions, or lower costs.</p>
+<p>It matters because data is often a company's most valuable asset, and a migration is one of the riskiest moments in its life. A bad migration can
+<b>lose records, corrupt values, break relationships or cause downtime</b>, and it might not be noticed until much later. A good migration is planned,
+repeatable and verified.</p>
+
+<h3>Key differences between SQL and NoSQL databases</h3>
+<table>
+<thead><tr><th></th><th>SQL (relational: MySQL, PostgreSQL…)</th><th>NoSQL (MongoDB, Cassandra, Redis…)</th></tr></thead>
+<tbody>
+<tr><td><b>Data model</b></td><td>Tables of rows and columns</td><td>Documents (JSON-like), key-value pairs, wide columns or graphs</td></tr>
+<tr><td><b>Schema</b></td><td>Fixed and declared up front (<code>CREATE TABLE</code>)</td><td>Flexible: documents in one collection can have different fields</td></tr>
+<tr><td><b>Relationships</b></td><td>Foreign keys + <code>JOIN</code> at query time</td><td>Usually <b>embedded</b> in the document or duplicated, and joins are limited or expensive</td></tr>
+<tr><td><b>Design starts from…</b></td><td>The data itself (normalize to avoid repetition)</td><td>The <b>queries</b> the application will run</td></tr>
+<tr><td><b>Scaling</b></td><td>Mostly vertical (a bigger server)</td><td>Built to scale horizontally (more servers, sharding)</td></tr>
+<tr><td><b>Consistency</b></td><td>Strong ACID transactions</td><td>Often eventual or tunable consistency. MongoDB supports multi-document ACID transactions, but they cost more</td></tr>
+<tr><td><b>Query language</b></td><td>Standard SQL</td><td>Specific to each database (MongoDB query API, CQL…)</td></tr>
+</tbody></table>
+
+<h2>2. Overview of DLoader</h2>
+<h3>What is DLoader, and what role does it play?</h3>
+<p>DLoader is a <b>migration framework for moving data from a MySQL database into NoSQL databases</b>, specifically <b>MongoDB</b> (document store) and
+<b>Cassandra</b> (wide-column store) <b>(paper)</b>. It plays the role of the <b>ETL tool</b> in the migration: it Extracts the data from the source,
+Transforms it into the target's model, and Loads it. That way the migration is done by a repeatable program and not by hand.</p>
+
+<h3>Main features and capabilities</h3>
+<ul>
+  <li><b>Extraction</b> of the data from a MySQL database <b>(paper)</b>.</li>
+  <li><b>Preprocessing</b>: applying transformations and standardizations to the data before it is loaded <b>(paper)</b>.</li>
+  <li><b>Column mapping</b>: mapping the MySQL table columns to fields in the NoSQL database <b>(paper)</b>.</li>
+  <li><b>Two kinds of target</b>: a document database (MongoDB) and a wide-column database (Cassandra), which lets the authors compare them. They report that
+  in their experiments, Cassandra needed less storage space and performed better than the transformed MongoDB database <b>(paper)</b>.</li>
+</ul>
+<p>To actually <i>work</i>, a tool built on these stages also needs the capabilities below. I included all of them in my implementation, and the rest of
+this report tests them: reading in batches, a consistent snapshot of the source, idempotent loading (safe to re-run), indexes, and validation.</p>
+
+<h2>3. The Migration Process</h2>
+<h3>Steps to migrate from SQL to NoSQL with DLoader</h3>
+<ol>
+  <li><b>Assess the source.</b> List the tables, row counts, keys, relationships and data quality problems, and find out <i>how the application reads the data</i>.</li>
+  <li><b>Design the target model.</b> Decide for each table whether it becomes its own collection, gets <b>embedded</b> in another document, or is <b>referenced</b> by id.
+  This is the most important step, because a NoSQL model is designed around the queries.</li>
+  <li><b>Configure the mapping.</b> Write the column → field rules, the type conversions and the cleaning rules (DLoader's mapping and preprocessing stages).</li>
+  <li><b>Extract</b> the rows from MySQL in batches, from one consistent snapshot.</li>
+  <li><b>Transform</b> each batch: clean values, convert types, and combine related rows into documents.</li>
+  <li><b>Load</b> the documents into the NoSQL database in bulk, then create the indexes.</li>
+  <li><b>Validate</b>: compare counts, checksums and samples between source and target.</li>
+  <li><b>Cut over</b>: switch the application to the new database, keep the old one read-only for a while, and have a rollback plan.</li>
+</ol>
+
+<h3>Common challenges and how to address them</h3>
+<table>
+<thead><tr><th>Challenge</th><th>How to address it</th></tr></thead>
+<tbody>
+<tr><td><b>Different data models</b>: SQL relies on joins, which NoSQL doesn't do well</td><td>Redesign around the queries: embed data that is read together, reference data that is large or shared (section 4)</td></tr>
+<tr><td><b>Data types</b> that don't exist on the other side (DECIMAL, TINYINT(1) booleans, DATE, ENUM)</td><td>An explicit type-mapping table in the transform step, tested on real data</td></tr>
+<tr><td><b>Dirty data</b>: spaces, inconsistent case, invalid values</td><td>Standardize during preprocessing (my pipeline trims and lowercases emails, for example)</td></tr>
+<tr><td><b>The source keeps changing during the migration</b></td><td>Read from a consistent snapshot, then catch up the changes (or briefly freeze writes, or use change-data-capture)</td></tr>
+<tr><td><b>Lost integrity</b>: no foreign keys in NoSQL</td><td>Check references during validation, and enforce rules in the application or with schema validation</td></tr>
+<tr><td><b>Large volumes</b> and slow migrations</td><td>Batching, bulk writes, indexes after the load, parallel workers (section 5)</td></tr>
+<tr><td><b>Failures halfway through</b></td><td>Make loading <b>idempotent</b> (upsert by the original key), so the migration can simply be re-run</td></tr>
+<tr><td><b>Application changes</b>: every query has to be rewritten</td><td>Plan it as part of the project, and run old and new side by side before switching</td></tr>
+</tbody></table>
+
+<h2>4. Data Transformation</h2>
+<h3>How DLoader handles transformation</h3>
+<p>DLoader handles it in its <b>preprocessing</b> stage, where it applies transformations and standardizations, and its <b>mapping</b> stage, where MySQL columns become
+NoSQL fields <b>(paper)</b>. In practice the transformation does three jobs: <b>clean</b> the values, <b>convert</b> the types, and <b>restructure</b> rows from several tables into
+documents. Here is the mapping I designed for the university database:</p>
+<svg viewBox="0 0 700 300" class="diagram" role="img" aria-label="Mapping of MySQL tables to MongoDB collections">
+    <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2563eb"/></marker></defs>
+    <text x="110" y="14" text-anchor="middle" class="h">MySQL (108,520 rows)</text>
+    <text x="560" y="14" text-anchor="middle" class="h">MongoDB (20,368 documents)</text>
+    
+    <g transform="translate(20,26)">
+      <rect width="180" height="52" rx="7" fill="#eff6ff" stroke="#334155"/>
+      <text x="90" y="16" text-anchor="middle" class="bt">departments (8)</text>
+      <text x="10" y="33" class="bl">department_id PK</text><text x="10" y="48" class="bl">name</text>
+    </g>
+    
+    <g transform="translate(20,82)">
+      <rect width="180" height="52" rx="7" fill="#eff6ff" stroke="#334155"/>
+      <text x="90" y="16" text-anchor="middle" class="bt">instructors (60)</text>
+      <text x="10" y="33" class="bl">instructor_id PK</text><text x="10" y="48" class="bl">department_id FK</text>
+    </g>
+    
+    <g transform="translate(20,138)">
+      <rect width="180" height="52" rx="7" fill="#eff6ff" stroke="#334155"/>
+      <text x="90" y="16" text-anchor="middle" class="bt">courses (300)</text>
+      <text x="10" y="33" class="bl">course_id PK</text><text x="10" y="48" class="bl">instructor_id FK</text>
+    </g>
+    
+    <g transform="translate(20,194)">
+      <rect width="180" height="52" rx="7" fill="#eff6ff" stroke="#334155"/>
+      <text x="90" y="16" text-anchor="middle" class="bt">students (20,000)</text>
+      <text x="10" y="33" class="bl">student_id PK</text><text x="10" y="48" class="bl">email, age</text>
+    </g>
+    
+    <g transform="translate(20,250)">
+      <rect width="180" height="37" rx="7" fill="#eff6ff" stroke="#334155"/>
+      <text x="90" y="16" text-anchor="middle" class="bt">enrollments (88,152)</text>
+      <text x="10" y="33" class="bl">(student_id, course_id) PK</text>
+    </g>
+    
+    <g transform="translate(430,26)">
+      <rect width="260" height="37" rx="7" fill="#f0fdf4" stroke="#334155"/>
+      <text x="130" y="16" text-anchor="middle" class="bt">departments</text>
+      <text x="10" y="33" class="bl">{ _id, name }</text>
+    </g>
+    
+    <g transform="translate(430,82)">
+      <rect width="260" height="37" rx="7" fill="#f0fdf4" stroke="#334155"/>
+      <text x="130" y="16" text-anchor="middle" class="bt">instructors</text>
+      <text x="10" y="33" class="bl">{ _id, …, department: { id, name } }</text>
+    </g>
+    
+    <g transform="translate(430,138)">
+      <rect width="260" height="37" rx="7" fill="#f0fdf4" stroke="#334155"/>
+      <text x="130" y="16" text-anchor="middle" class="bt">courses</text>
+      <text x="10" y="33" class="bl">{ _id, …, instructor: { id, full_name } }</text>
+    </g>
+    
+    <g transform="translate(430,194)">
+      <rect width="260" height="67" rx="7" fill="#f0fdf4" stroke="#334155"/>
+      <text x="130" y="16" text-anchor="middle" class="bt">students</text>
+      <text x="10" y="33" class="bl">{ _id, …, enrollments: [</text><text x="10" y="48" class="bl">    { course_id, course_title,</text><text x="10" y="63" class="bl">      grade?, enrolled_on } ] }</text>
+    </g>
+    <line x1="200" y1="50" x2="428" y2="50" stroke="#2563eb" stroke-width="1.6" marker-end="url(#ah)"/>
+    <line x1="200" y1="106" x2="428" y2="106" stroke="#2563eb" stroke-width="1.6" marker-end="url(#ah)"/>
+    <line x1="200" y1="162" x2="428" y2="162" stroke="#2563eb" stroke-width="1.6" marker-end="url(#ah)"/>
+    <line x1="200" y1="218" x2="428" y2="218" stroke="#2563eb" stroke-width="1.6" marker-end="url(#ah)"/>
+    <line x1="200" y1="270" x2="428" y2="236" stroke="#2563eb" stroke-width="1.6" marker-end="url(#ah)"/>
+    <text x="314" y="44" text-anchor="middle" class="note">1 row → 1 doc</text>
+    <text x="314" y="100" text-anchor="middle" class="note">+ join: department name copied in</text>
+    <text x="314" y="156" text-anchor="middle" class="note">+ join: instructor name copied in</text>
+    <text x="314" y="212" text-anchor="middle" class="note">student + their enrollments</text>
+    <text x="314" y="268" text-anchor="middle" class="note">join table → embedded array</text>
+  </svg>
+
+<h3>Example: one student before and after</h3>
+<div class="two">
+<div><table class="mini"><caption>MySQL: 1 row in <code>students</code></caption>
+  <tr><th>student_id</th><th>full_name</th><th>email</th><th>age</th></tr>
+  <tr><td>50</td><td>"Ibrahim Danjuma"</td><td>"  Student50@Student.UNI.edu "</td><td>18</td></tr></table><table class="mini"><caption>+ 3 rows in <code>enrollments</code></caption>
+  <tr><th>student_id</th><th>course_id</th><th>grade</th><th>enrolled_on</th></tr>
+  <tr><td>50</td><td>104</td><td>C</td><td>2026-09-03</td></tr><tr><td>50</td><td>145</td><td>F</td><td>2026-09-08</td></tr><tr><td>50</td><td>228</td><td>D</td><td>2026-09-08</td></tr></table></div>
+<div><pre>// MongoDB: 1 document in "students"
+{
+  _id: 50,
+  full_name: "Ibrahim Danjuma",
+  email: "student50@student.uni.edu",
+  age: 18,
+  enrollments: [
+    {
+      course_id: 104,
+      course_title: "Linear Algebra 110",
+      grade: "C",
+      enrolled_on: ISODate("2026-09-03")
+    },
+    {
+      course_id: 145,
+      course_title: "Networks 114",
+      grade: "F",
+      enrolled_on: ISODate("2026-09-08")
+    },
+    {
+      course_id: 228,
+      course_title: "Microeconomics 122",
+      grade: "D",
+      enrolled_on: ISODate("2026-09-08")
+    }
+  ],
+  enrollment_count: 3
+}</pre></div>
+</div>
+<p>Look at what changed: the <b>3 enrollment rows were embedded</b> inside the student, along with the course title, so showing a student's courses needs no join.
+The messy email <code>"  Student50@Student.UNI.edu "</code> was <b>trimmed and lowercased</b>, the dates became real <b>Date</b> values, and the
+<b>NULL grade was left out</b> of the document instead of being stored as <code>null</code>.</p>
+
+<h3>Other common transformations</h3>
+<table>
+<thead><tr><th>In SQL</th><th>In NoSQL (MongoDB)</th><th>Why</th></tr></thead>
+<tbody>
+<tr><td>Join table (<code>enrollments</code>)</td><td>Array embedded in the parent document</td><td>Read together. Fine as long as the array stays small (bounded)</td></tr>
+<tr><td>Foreign key to a small lookup table</td><td>Copy the needed fields in (<code>department: { id, name }</code>)</td><td>Avoids a join on every read. Costs an update in several places if the name changes</td></tr>
+<tr><td>Foreign key to a big or shared entity</td><td>Keep a reference (<code>course_id</code>)</td><td>Embedding a whole course in every student would repeat it thousands of times</td></tr>
+<tr><td><code>INT AUTO_INCREMENT</code> id</td><td>Kept as <code>_id</code> (or a new ObjectId + <code>legacy_id</code>)</td><td>Keeping it makes re-runs idempotent and lets you trace each document back to its row</td></tr>
+<tr><td><code>DECIMAL(10,2)</code> money</td><td><code>Decimal128</code></td><td>A JavaScript number (double) can't store 0.10 exactly</td></tr>
+<tr><td><code>TINYINT(1)</code></td><td><code>true</code> / <code>false</code></td><td>MySQL has no real boolean type</td></tr>
+<tr><td><code>DATE</code> / <code>DATETIME</code></td><td>BSON <code>Date</code> (UTC)</td><td>Allows date queries and sorting. Watch out for time zones</td></tr>
+<tr><td><code>NULL</code></td><td>Field left out (or <code>null</code>)</td><td>Pick one rule and use it everywhere, so queries are predictable</td></tr>
+<tr><td>For Cassandra: one normalized table</td><td>Several tables, one per query</td><td>Cassandra has no joins at all, so data is duplicated per access pattern</td></tr>
+</tbody></table>
+
+<h2>5. Performance Considerations</h2>
+<h3>What to consider</h3>
+<ul>
+  <li><b>Network round trips</b>: sending rows one by one is slow, so batch them.</li>
+  <li><b>How the source is read</b>: avoid <code>OFFSET</code> pagination and one query per row (the "N+1" problem), and make sure the source uses its indexes.</li>
+  <li><b>Write cost on the target</b>: bulk writes, write concern, and indexes being updated during the load.</li>
+  <li><b>Load on the production source</b>: a migration shouldn't slow down the live application, so throttle it or read from a replica.</li>
+  <li><b>Document size</b>: embedding too much makes documents large (MongoDB's limit is 16 MB per document).</li>
+  <li><b>Storage</b>: documents repeat field names and duplicated data (here, course titles inside every enrollment). In this run, the MySQL data took 6.1 MB. The same data in MongoDB was 10.2 MB uncompressed, but only 2.6 MB on disk, because MongoDB compresses its storage. So duplication costs space, but compression can more than make up for it.</li>
+</ul>
+
+<h3>How a DLoader-style pipeline optimizes it, measured</h3>
+<p>The whole migration (108,520 rows → 20,368 documents, plus indexes) took <b>738 ms</b> on my laptop. Here are the experiments behind that:</p>
+
+<p><b>1. Batching.</b> I loaded the 20,000 students with different batch sizes (median of 3 runs each):</p>
+<svg viewBox="0 0 640 230" class="chart" role="img" aria-label="Students migrated per second by batch size">
+    <line x1="70" x2="620" y1="184" y2="184" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="62" y="188" text-anchor="end" class="tick">0</text><line x1="70" x2="620" y1="142.5" y2="142.5" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="62" y="146.5" text-anchor="end" class="tick">12,500</text><line x1="70" x2="620" y1="101" y2="101" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="62" y="105" text-anchor="end" class="tick">25,000</text><line x1="70" x2="620" y1="59.5" y2="59.5" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="62" y="63.5" text-anchor="end" class="tick">37,500</text><line x1="70" x2="620" y1="18" y2="18" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="62" y="22" text-anchor="end" class="tick">50,000</text>
+    <path d="M102,184 V174.44776 Q102,170.44776 106,170.44776 H144 Q148,170.44776 148,174.44776 V184 Z" fill="#2563eb"/>
+        <text x="125" y="164.44776" text-anchor="middle" class="val">4,082</text>
+        <text x="125" y="202" text-anchor="middle" class="tick">1</text><path d="M212,184 V112.11476 Q212,108.11476 216,108.11476 H254 Q258,108.11476 258,112.11476 V184 Z" fill="#2563eb"/>
+        <text x="235" y="102.11476" text-anchor="middle" class="val">22,857</text>
+        <text x="235" y="202" text-anchor="middle" class="tick">10</text><path d="M322,184 V68.14468 Q322,64.14468 326,64.14468 H364 Q368,64.14468 368,68.14468 V184 Z" fill="#2563eb"/>
+        <text x="345" y="58.144679999999994" text-anchor="middle" class="val">36,101</text>
+        <text x="345" y="202" text-anchor="middle" class="tick">100</text><path d="M432,184 V51.37536 Q432,47.37536 436,47.37536 H474 Q478,47.37536 478,51.37536 V184 Z" fill="#2563eb"/>
+        <text x="455" y="41.37536" text-anchor="middle" class="val">41,152</text>
+        <text x="455" y="202" text-anchor="middle" class="tick">1,000</text><path d="M542,184 V46.72404 Q542,42.72404 546,42.72404 H584 Q588,42.72404 588,46.72404 V184 Z" fill="#2563eb"/>
+        <text x="565" y="36.72404" text-anchor="middle" class="val">42,553</text>
+        <text x="565" y="202" text-anchor="middle" class="tick">5,000</text>
+    <line x1="70" x2="620" y1="184" y2="184" stroke="#94a3b8"/>
+    <text x="345" y="224" text-anchor="middle" class="axis">batch size (rows per round trip)</text>
+    <text transform="translate(14 101) rotate(-90)" text-anchor="middle" class="axis">students / second</text>
+  </svg>
+<table>
+<thead><tr><th class="num">Batch size</th><th class="num">1</th><th class="num">10</th><th class="num">100</th><th class="num">1,000</th><th class="num">5,000</th></tr></thead>
+<tbody><tr><td>Students per second</td><td class="num">4,082</td><td class="num">22,857</td><td class="num">36,101</td><td class="num">41,152</td><td class="num">42,553</td></tr>
+<tr><td>3 runs (ms)</td><td class="num">535 / 490 / 479</td><td class="num">873 / 875 / 892</td><td class="num">528 / 554 / 556</td><td class="num">482 / 486 / 539</td><td class="num">501 / 470 / 469</td></tr></tbody></table>
+<p>Going from 1 row per round trip to 5,000 made it <b>about 10× faster</b>. Above about 1,000 it stops improving, because the
+batches are then big enough that the round trips no longer matter. (The batch size 1 run was measured on 2,000 students, because it is so slow.)</p>
+
+<p><b>2. The source database's statistics.</b> My first benchmark gave strange results. To find the cause, I timed each stage separately and found that the query reading
+each batch's enrollments was slow. MySQL's statistics were out of date after the bulk insert, so it chose a bad plan: it scanned <i>every course</i> and its enrollments,
+instead of jumping straight to the batch's students through the primary key. Running <code>ANALYZE TABLE</code> fixed it:</p>
+<table>
+<thead><tr><th>Query for 1,000 students</th><th class="num">Time</th><th>MySQL's plan</th></tr></thead>
+<tbody>
+<tr><td>Before <code>ANALYZE TABLE</code></td><td class="num">15.8 ms</td><td>Covering index scan on c using uq_courses_title → Index lookup on e using idx_enrollments_course (course_id = c.course_id)</td></tr>
+<tr><td>After <code>ANALYZE TABLE</code></td><td class="num">4.6 ms</td><td>Index range scan on e using PRIMARY over student_id IN (…) → Single-row index lookup on c using PRIMARY (course_id = e.course_id)</td></tr>
+</tbody></table>
+<p>That's 3.4× faster for 1,000 ids (and 7.1 → 0.7 ms for 100 ids). My pipeline now refreshes the statistics before extracting.
+The lesson: <b>a migration is only as fast as its slowest query, so check the source's query plans</b> with <code>EXPLAIN</code>.</p>
+
+<p><b>3. Other techniques in the pipeline:</b></p>
+<ul>
+  <li><b>Keyset pagination</b> (<code>WHERE id &gt; last ORDER BY id LIMIT n</code>) instead of <code>OFFSET</code>, which gets slower and slower on big tables.</li>
+  <li><b>One query per batch</b> for the enrollments (<code>WHERE student_id IN (…)</code>), not one per student: 20 queries instead of 20,000.</li>
+  <li><b>Unordered bulk writes</b> (<code>bulkWrite</code>, <code>ordered: false</code>), so MongoDB can apply each batch efficiently.</li>
+  <li><b>Indexes after the load.</b> The usual advice is to build indexes once at the end, not update them on every insert. At this size I measured
+  a <b>small advantage</b> for creating them after the load (median 735 ms with the indexes created first, 623 ms after the load), and the
+  difference changed from run to run. At 20,000 documents it hardly matters. The advice is for loads of millions of documents.</li>
+</ul>
+
+<h2>6. Consistency and Integrity</h2>
+<h3>How the pipeline keeps the data consistent</h3>
+<ul>
+  <li><b>One consistent snapshot.</b> All reads happen inside <code>START TRANSACTION WITH CONSISTENT SNAPSHOT, READ ONLY</code>, so every batch sees the database
+  as it was at the same moment, even if the application keeps writing. Without it, a student could be copied before a new enrollment and the enrollment missed.</li>
+  <li><b>Idempotent loading.</b> Each document is <i>upserted</i> using its SQL primary key as <code>_id</code>. Running the migration twice gives the same result with
+  no duplicates, so a failure halfway through is fixed by simply running it again.</li>
+  <li><b>Integrity rules move into the code.</b> MongoDB has no foreign keys, so the pipeline checks references during validation instead.</li>
+  <li>DLoader's <b>standardization</b> step <b>(paper)</b> also helps consistency: the same value is always written the same way (for example, lowercase emails).</li>
+</ul>
+
+<h3>Strategies to verify the migrated data, and my results</h3>
+<table class="checks">
+<colgroup><col style="width:34%"><col style="width:28%"><col style="width:28%"><col style="width:10%"></colgroup>
+<thead><tr><th>Check</th><th class="num">MySQL</th><th class="num">MongoDB</th><th>Result</th></tr></thead>
+<tbody><tr><td>count: departments</td><td class="num">8</td><td class="num">8</td><td><span class="good">✔ match</span></td></tr><tr><td>count: instructors</td><td class="num">60</td><td class="num">60</td><td><span class="good">✔ match</span></td></tr><tr><td>count: courses</td><td class="num">300</td><td class="num">300</td><td><span class="good">✔ match</span></td></tr><tr><td>count: students</td><td class="num">20,000</td><td class="num">20,000</td><td><span class="good">✔ match</span></td></tr><tr><td>count: enrollments (rows vs embedded array items)</td><td class="num">88,152</td><td class="num">88,152</td><td><span class="good">✔ match</span></td></tr><tr><td>checksum: sum of all ages</td><td class="num">546,894</td><td class="num">546,894</td><td><span class="good">✔ match</span></td></tr><tr><td>checksum: number of each grade (A–F, none)</td><td class="num">A: 12,308, B: 12,260, C: 13,314, D: 11,072, E: 12,348, F: 12,939, none: 13,911</td><td class="num">A: 12,308, B: 12,260, C: 13,314, D: 11,072, E: 12,348, F: 12,939, none: 13,911</td><td><span class="good">✔ match</span></td></tr><tr><td>checksum: total credits</td><td class="num">1,031</td><td class="num">1,031</td><td><span class="good">✔ match</span></td></tr><tr><td>integrity: enrollments pointing to a missing course</td><td class="num">0</td><td class="num">0</td><td><span class="good">✔ match</span></td></tr><tr><td>sample: 200 random students compared field by field</td><td class="num">0</td><td class="num">0</td><td><span class="good">✔ match</span></td></tr></tbody>
+</table>
+<p>The checks go from cheap to thorough:</p>
+<ul>
+  <li><b>Counts</b> catch lost or duplicated records.</li>
+  <li><b>Checksums</b> (sums and group counts calculated independently on each side) catch wrong values.</li>
+  <li>The <b>integrity</b> check catches broken references.</li>
+  <li>The <b>record-by-record comparison</b> rebuilds random students from SQL and compares every field.</li>
+</ul>
+
+<p><b>Does the validation actually catch problems?</b> I broke the target on purpose in 3 ways: student 123: last enrollment removed; student 456: email changed; student 789: document deleted.
+The validation <b>failed, as it should</b>, in 5 different checks:</p>
+<ul><li>count: students: MySQL 20,000, MongoDB 19,999</li><li>count: enrollments (rows vs embedded array items): MySQL 88,152, MongoDB 88,146</li><li>checksum: sum of all ages: MySQL 546,894, MongoDB 546,872</li><li>checksum: number of each grade (A–F, none): MySQL A: 12,308, B: 12,260, C: 13,314, D: 11,072, E: 12,348, F: 12,939, none: 13,911, MongoDB A: 12,307, B: 12,260, C: 13,314, D: 11,071, E: 12,348, F: 12,937, none: 13,909</li><li>sample: 20000 random students compared field by field: MySQL 0, MongoDB 3 (different: 456, 789, 123)</li></ul>
+<p>Then I simply <b>re-ran the migration</b>. Because it is idempotent, it repaired all three problems, and every check passed again with exactly 20,000 students (no duplicates).</p>
+
+<h2 class="pagebreak">7. Practical Application: A Migration Plan</h2>
+<p><b>The scenario:</b> a university runs its student system on MySQL (the schema from my previous SQL checkpoint): departments, instructors, courses, students and enrollments.
+The student portal is slow because every "my courses" page joins three tables, and the university wants to move the portal to MongoDB.</p>
+
+<h3>The plan</h3>
+<table>
+<thead><tr><th>Phase</th><th>What happens</th><th>Done when</th></tr></thead>
+<tbody>
+<tr><td><b>1. Assess</b></td><td>Count rows, list keys and relationships, profile data quality (messy emails, NULL grades), list the portal's queries</td><td>We know what to move and how it's read</td></tr>
+<tr><td><b>2. Design</b></td><td>Target model as in section 4: students embed their enrollments, courses embed their instructor's name, departments stay small</td><td>Every portal query can be answered by 1 document read</td></tr>
+<tr><td><b>3. Configure DLoader</b></td><td>Column → field mapping, type conversions, cleaning rules, batch size 1,000, indexes to create</td><td>The mapping is written in code and reviewed</td></tr>
+<tr><td><b>4. Rehearse</b></td><td>Run the full migration on a <b>copy</b> of production and run all the validation checks</td><td>All checks pass, the time is measured, and a re-run causes no duplicates</td></tr>
+<tr><td><b>5. Migrate</b></td><td>Short write freeze (or snapshot + catch-up), run DLoader, validate</td><td>All checks pass on the real data</td></tr>
+<tr><td><b>6. Cut over</b></td><td>Switch the portal to MongoDB; MySQL stays read-only as a fallback</td><td>The portal works, and errors and response times are normal</td></tr>
+<tr><td><b>7. Monitor and clean up</b></td><td>Compare a sample of answers between old and new for a few weeks, then retire MySQL</td><td>No differences found</td></tr>
+</tbody></table>
+<p><b>Rollback plan:</b> until MySQL is retired, switching the portal back is just a configuration change, because MySQL was never modified.</p>
+
+<h3>How I implemented it</h3>
+<p>I implemented phases 2 to 5 and ran them on a temporary copy filled with 20,000 generated students:</p>
+<pre>npm run migrate</pre>
+<ol>
+  <li><code>run.js</code> creates the MySQL schema and the test data (108,520 rows, including a few messy emails on purpose).</li>
+  <li><code>pipeline.js</code> refreshes the statistics, opens a consistent snapshot, then for each table: <b>extracts</b> 1,000 rows at a time,
+  <b>transforms</b> them (clean, convert, embed) and <b>loads</b> them with bulk upserts. Then it creates the indexes.</li>
+  <li><code>validate.js</code> runs the 10 checks above. All of them passed.</li>
+  <li>The rehearsal tests are included too: breaking data on purpose, re-running to repair it, and measuring performance.</li>
+</ol>
+<p>The same question, <i>"show student 50 with their courses"</i>, needs a 3-table <code>JOIN</code> returning 3 rows in MySQL, but <b>a single
+<code>findOne</code></b> returning 1 document in MongoDB. That's exactly the access pattern the new model was designed for.</p>
+
+<h2>8. Case Studies</h2>
+<h3>Netflix: Oracle → SimpleDB → Cassandra</h3>
+<p>When Netflix moved to the cloud around 2010–2011, it moved its data out of its own Oracle databases, first to Amazon SimpleDB and S3, and later to Cassandra.
+Talks from the time describe the method: <b>dual writes</b> to both systems, a bulk <b>"forklift"</b> of the existing data, and a <b>consistency checker</b> to compare the two.
+Its billing data, spread over many Oracle tables, was transformed into a much simpler Cassandra structure. The main motivations were availability and scale:
+the central Oracle database was a single point of failure.</p>
+
+<h3>Craigslist: MySQL archive → MongoDB</h3>
+<p>Craigslist kept its live postings in MySQL but moved its <b>archive</b> of old postings to MongoDB (2011, over two billion documents according to MongoDB's case study).
+Every schema change on the huge archive took a very long time, and archive data piled up in the production database. Each expired posting became one
+JSON-like document. MySQL stayed for the live site, so this was a <b>partial</b> migration of the data that suited documents best.</p>
+
+<h3>Diaspora: MongoDB → MySQL (the other direction)</h3>
+<p>The Diaspora social network started on MongoDB and, after months in production, <b>moved to MySQL</b>. Sarah Mei, one of its developers, explained that social data
+(users, friends, posts, comments) is deeply <b>relational</b>. In documents it had to be duplicated and kept in sync by hand, which caused inconsistencies.</p>
+
+<h3>Lessons learned</h3>
+<ul>
+  <li><b>Choose by access pattern, not fashion.</b> Craigslist's archive (write once, read as a whole) fitted documents perfectly. Diaspora's interconnected social data did not.</li>
+  <li><b>You don't have to migrate everything.</b> Craigslist kept MySQL for the live site, and a hybrid is often the best answer.</li>
+  <li><b>Plan for running both systems in parallel</b>, with dual writes and a consistency checker (Netflix), the same idea as my validation step.</li>
+  <li><b>The data model must be redesigned</b>, not copied table by table.</li>
+</ul>
+
+<h2>9. Conclusion</h2>
+<div class="two">
+<table><caption>Advantages of moving to NoSQL</caption><tbody>
+<tr><td>Horizontal scaling across many servers</td></tr>
+<tr><td>Flexible schema: new fields without a migration</td></tr>
+<tr><td>Fast reads when a document holds everything a page needs (1 read instead of a 3-table join)</td></tr>
+<tr><td>Natural fit for JSON APIs and semi-structured data</td></tr>
+<tr><td>High availability through replication (Netflix's main reason)</td></tr>
+</tbody></table>
+<table><caption>Disadvantages and risks</caption><tbody>
+<tr><td>Joins and ad-hoc queries become harder</td></tr>
+<tr><td>Duplicated data has to be kept in sync by the application</td></tr>
+<tr><td>Weaker built-in integrity (no foreign keys), and transactions are more limited or costly</td></tr>
+<tr><td>Every query in the application has to be rewritten</td></tr>
+<tr><td>Often more storage, and the migration itself is a risky project</td></tr>
+</tbody></table>
+</div>
+
+<div class="answer"><b>When I would recommend DLoader.</b> I'd use the DLoader approach (extract → preprocess/standardize → map → load, plus validation) for a <b>planned, batch migration
+of MySQL data into MongoDB or Cassandra</b>, when:
+<ul>
+  <li>the data is mostly <b>read as a whole</b> (like a student with their courses, or an archived posting);</li>
+  <li>the access patterns are known, so the target model can be designed well;</li>
+  <li>a short write freeze or a catch-up step is acceptable.</li>
+</ul>
+I would <b>not</b> use it when:
+<ul>
+  <li>the data is highly relational and transactional (bank transfers, social graphs, like Diaspora);</li>
+  <li>both databases must stay in sync continuously for a long time. That calls for change-data-capture or replication tools.</li>
+</ul>
+Also, because DLoader is a research prototype with no public release that I could find, a real company would probably rely on a maintained tool
+built on the same ideas. Its value for me was showing clearly <b>what every migration needs</b>: careful mapping, cleaning, batching and validation.</div>
+
+<h3>Sources</h3>
+<ul class="src">
+  <li>K. Rajaram, P. Sharma, S. Selvakumar, "DLoader: Migration of Data from SQL to NoSQL Databases", <i>Proc. Int. Conf. on Cognitive and Intelligent Computing</i>,
+    Springer (Cognitive Science and Technology), 2023, pp. 193–204. https://link.springer.com/chapter/10.1007/978-981-19-2358-6_19 (metadata confirmed via Crossref)</li>
+  <li>Netflix: S. Anand, "NoSQL @ Netflix", QCon London 2011, https://www.infoq.com/presentations/NoSQL-Netflix · A. Cockcroft, "Migrating Netflix from Oracle to Global Cassandra" (2011),
+    https://www.slideshare.net/slideshow/migrating-netflix-from-oracle-to-global-cassandra/8600029</li>
+  <li>Craigslist: MongoDB case study, https://www.mongodb.com/resources/solutions/use-cases/mongodb-case-study-craigslist ·
+    TheServerSide, https://www.theserverside.com/feature/How-NoSQL-MySQL-and-MogoDB-worked-together-to-solve-a-big-data-problem</li>
+  <li>Diaspora: S. Mei, "Why You Should Never Use MongoDB" (2013), http://www.sarahmei.com/blog/2013/11/11/why-you-should-never-use-mongodb/ ·
+    "MongoDB to MySQL: The How and the Why", RubyConf 2011, https://www.rubyevents.org/talks/mongodb-to-mysql-the-how-and-the-why</li>
+</ul>
+
+<footer>Measured on MySQL 9.7.4 and MongoDB 8.2.6 (Node v20.19.4), temporary local servers, one laptop.
+Timings vary between machines; the comparisons between them are what matter. Reproduce with <code>npm run migrate &amp;&amp; npm run report</code>.</footer>
+</body></html>

@@ -1,0 +1,22 @@
+{
+  "name": "sql-to-nosql-migration",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "node dloader/run.js",
+    "report": "node report/build-report.js"
+  },
+  "keywords": [],
+  "author": "Chimaroke Amadi",
+  "license": "ISC",
+  "description": "SQL to NoSQL data migration with a DLoader-style pipeline (MySQL to MongoDB)",
+  "dependencies": {
+    "mongodb": "^7.8.0",
+    "mysql2": "^3.24.6"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.3.0",
+    "mysql-memory-server": "^1.18.0"
+  }
+}
