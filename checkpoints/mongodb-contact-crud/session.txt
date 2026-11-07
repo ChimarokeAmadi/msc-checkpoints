@@ -1,0 +1,133 @@
+contact> use contact
+switched to db contact
+
+contact> db.createCollection("contactlist")
+{ ok: 1 }
+
+contact> db.contactlist.insertMany([
+  { last_name: "Ben",    first_name: "Moris",      email: "ben@gmail.com",      age: 26 },
+  { last_name: "Kefi",   first_name: "Seif",       email: "kefi@gmail.com",     age: 15 },
+  { last_name: "Emilie", first_name: "brouge",     email: "emilie.b@gmail.com", age: 40 },
+  { last_name: "Alex",   first_name: "brown",                                   age: 4 },
+  { last_name: "Denzel", first_name: "Washington",                              age: 3 }
+])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId('6aef40348b1cbbe87c945c6e'),
+    '1': ObjectId('6aef40348b1cbbe87c945c6f'),
+    '2': ObjectId('6aef40348b1cbbe87c945c70'),
+    '3': ObjectId('6aef40348b1cbbe87c945c71'),
+    '4': ObjectId('6aef40348b1cbbe87c945c72')
+  }
+}
+
+contact> db.contactlist.find()
+[
+  {
+    _id: ObjectId('6aef40348b1cbbe87c945c6e'),
+    last_name: 'Ben',
+    first_name: 'Moris',
+    email: 'ben@gmail.com',
+    age: 26
+  },
+  {
+    _id: ObjectId('6aef40348b1cbbe87c945c6f'),
+    last_name: 'Kefi',
+    first_name: 'Seif',
+    email: 'kefi@gmail.com',
+    age: 15
+  },
+  {
+    _id: ObjectId('6aef40348b1cbbe87c945c70'),
+    last_name: 'Emilie',
+    first_name: 'brouge',
+    email: 'emilie.b@gmail.com',
+    age: 40
+  },
+  {
+    _id: ObjectId('6aef40348b1cbbe87c945c71'),
+    last_name: 'Alex',
+    first_name: 'brown',
+    age: 4
+  },
+  {
+    _id: ObjectId('6aef40348b1cbbe87c945c72'),
+    last_name: 'Denzel',
+    first_name: 'Washington',
+    age: 3
+  }
+]
+
+contact> db.contactlist.findOne({ _id: ObjectId("6aef40348b1cbbe87c945c6e") })
+{
+  _id: ObjectId('6aef40348b1cbbe87c945c6e'),
+  last_name: 'Ben',
+  first_name: 'Moris',
+  email: 'ben@gmail.com',
+  age: 26
+}
+
+contact> db.contactlist.find({ age: { $gt: 18 } })
+[
+  {
+    _id: ObjectId('6aef40348b1cbbe87c945c6e'),
+    last_name: 'Ben',
+    first_name: 'Moris',
+    email: 'ben@gmail.com',
+    age: 26
+  },
+  {
+    _id: ObjectId('6aef40348b1cbbe87c945c70'),
+    last_name: 'Emilie',
+    first_name: 'brouge',
+    email: 'emilie.b@gmail.com',
+    age: 40
+  }
+]
+
+contact> db.contactlist.find({ age: { $gt: 18 }, $or: [{ first_name: /ah/i }, { last_name: /ah/i }] })
+
+
+contact> db.contactlist.countDocuments({ age: { $gt: 18 }, $or: [{ first_name: /ah/i }, { last_name: /ah/i }] })
+0
+
+contact> db.contactlist.updateOne(
+  { last_name: "Kefi", first_name: "Seif" },
+  { $set: { first_name: "Anis" } }
+)
+{
+  acknowledged: true,
+  insertedId: null,
+  matchedCount: 1,
+  modifiedCount: 1,
+  upsertedCount: 0
+}
+
+contact> db.contactlist.deleteMany({ age: { $lt: 5 } })
+{ acknowledged: true, deletedCount: 2 }
+
+contact> db.contactlist.find()
+[
+  {
+    _id: ObjectId('6aef40348b1cbbe87c945c6e'),
+    last_name: 'Ben',
+    first_name: 'Moris',
+    email: 'ben@gmail.com',
+    age: 26
+  },
+  {
+    _id: ObjectId('6aef40348b1cbbe87c945c6f'),
+    last_name: 'Kefi',
+    first_name: 'Anis',
+    email: 'kefi@gmail.com',
+    age: 15
+  },
+  {
+    _id: ObjectId('6aef40348b1cbbe87c945c70'),
+    last_name: 'Emilie',
+    first_name: 'brouge',
+    email: 'emilie.b@gmail.com',
+    age: 40
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "name": "mongodb-contact-crud",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node run.js"
+  },
+  "keywords": [],
+  "author": "Chimaroke Amadi",
+  "license": "ISC",
+  "description": "MongoDB CRUD checkpoint: contact list",
+  "devDependencies": {
+    "mongodb-memory-server": "^11.3.0"
+  }
+}
