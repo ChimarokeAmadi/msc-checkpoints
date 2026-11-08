@@ -137,15 +137,13 @@ because Azure sets it itself.
 2. **Deployment Center → Source: Local Git → Save.** Azure shows a **Git Clone
    Uri**. On the **Local Git/FTPS credentials** tab, you get a username (it
    starts with `$`) and a password.
-3. Clone the Azure repo next to this folder, copy the app into it, and push:
+3. Clone the Azure repo into your home folder, copy the app into it, and push. I keep it outside my checkpoints repo so it doesn't get mixed in with the code on GitHub:
 
    ```bash
-   cd ..
-   git clone https://<your-app>.scm.azurewebsites.net:443/<your-app>.git azure-mern-users
-   cd mern-azure-deploy
+   git clone https://<your-app>.scm.azurewebsites.net:443/<your-app>.git ~/azure-mern-users
    npm run build:client                         # fresh React build in public/
-   sh scripts/copy-to-azure-repo.sh ../azure-mern-users
-   cd ../azure-mern-users
+   sh scripts/copy-to-azure-repo.sh ~/azure-mern-users
+   cd ~/azure-mern-users
    git add -A
    git commit -m "Deploy MERN users app"
    git push origin HEAD:master                  # Azure deploys from "master"
