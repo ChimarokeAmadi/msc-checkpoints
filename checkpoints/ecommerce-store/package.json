@@ -1,0 +1,28 @@
+{
+  "name": "ecommerce-store",
+  "version": "1.0.0",
+  "description": "Full MERN e-commerce website (Kora Market), deployed on Azure App Service + MongoDB Atlas",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "local": "node local.js",
+    "build:client": "npm --prefix client install && npm --prefix client run build",
+    "dev:client": "npm --prefix client run dev",
+    "test": "node --test"
+  },
+  "author": "Chimaroke Amadi",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.12.0"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.3.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
