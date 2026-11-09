@@ -1,0 +1,6 @@
+stop_id,stop_code,stop_name,stop_lat,stop_lon
+A,1,Alpha Square,45.5000,-122.6000
+B,2,Beta Street,45.5010,-122.6000
+C,3,Gamma Park,45.5020,-122.6000
+D,4,Delta Station,45.5100,-122.6000
+Z,9,Far Away,45.6000,-122.7000

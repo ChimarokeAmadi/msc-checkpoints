@@ -1,0 +1,7 @@
+route_id,service_id,trip_id,trip_headsign,direction_id
+R1,WEEKDAY,T1,Delta,0
+R1,WEEKDAY,T2,Delta,0
+R1,SUNDAY,T3,Delta,0
+L,WEEKDAY,LOOP1,Loop,0
+R1,WEEKDAY,NIGHT,Delta,0
+R1,HOLIDAY,EXTRA,Delta,0

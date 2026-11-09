@@ -1,0 +1,25 @@
+{
+  "name": "gtfs-redis-mongodb-benchmark",
+  "version": "1.0.0",
+  "main": "app/server.js",
+  "scripts": {
+    "data": "node scripts/download-data.js",
+    "bench": "node --max-old-space-size=6144 bench/run.js",
+    "test": "node --test test/",
+    "app": "node app/server.js",
+    "report": "node report/build-report.js"
+  },
+  "author": "Chimaroke Amadi",
+  "license": "ISC",
+  "description": "Application-based benchmark of Redis and MongoDB for GTFS trip planning",
+  "dependencies": {
+    "csv-parse": "^7.0.3",
+    "express": "^5.3.0",
+    "mongodb": "^7.8.0",
+    "redis": "^6.3.1"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.3.0",
+    "redis-memory-server": "^0.17.1"
+  }
+}

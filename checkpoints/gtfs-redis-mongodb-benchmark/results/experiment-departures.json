@@ -1,0 +1,112 @@
+{
+  "bigbluebus": {
+    "plannerPicks": "service-aware index",
+    "feed": "bigbluebus",
+    "activeServices": 5,
+    "activeRowShare": 0.47120025222515943,
+    "checked": 2000,
+    "latency": {
+      "Redis, normal layout": {
+        "p50": 0.04804199999989578,
+        "p95": 0.05500000000029104,
+        "p99": 0.06083400000034089,
+        "mean": 0.04595224599999892,
+        "max": 0.5828329999999369
+      },
+      "Redis, service-aware": {
+        "p50": 0.04270799999994779,
+        "p95": 0.047749999999723514,
+        "p99": 0.05274999999983265,
+        "mean": 0.04340439499998956,
+        "max": 0.46670899999980975
+      },
+      "MongoDB, normal index": {
+        "p50": 0.11933300000009694,
+        "p95": 0.14087500000005093,
+        "p99": 0.1610000000000582,
+        "mean": 0.12039994350000188,
+        "max": 0.5505840000000717
+      },
+      "MongoDB, service-aware index": {
+        "p50": 0.11758299999974042,
+        "p95": 0.1301659999999174,
+        "p99": 0.14391599999999016,
+        "mean": 0.11660620950000135,
+        "max": 0.4970419999999649
+      }
+    },
+    "cost": {
+      "redisExtraBytes": 3913104,
+      "redisExtraKeys": 2417,
+      "mongoExtraIndexBytes": 1564672
+    },
+    "explain": {
+      "stop": "34",
+      "normal": {
+        "keysExamined": 28,
+        "docsExamined": 28,
+        "returned": 10
+      },
+      "serviceAware": {
+        "keysExamined": 11,
+        "docsExamined": 10,
+        "returned": 10
+      }
+    }
+  },
+  "trimet": {
+    "plannerPicks": "service-aware index",
+    "feed": "trimet",
+    "activeServices": 6,
+    "activeRowShare": 0.08857177232165128,
+    "checked": 2000,
+    "latency": {
+      "Redis, normal layout": {
+        "p50": 0.15183299999625888,
+        "p95": 0.17025000000285218,
+        "p99": 0.20879099999729078,
+        "mean": 0.12413699000001362,
+        "max": 1.5046670000010636
+      },
+      "Redis, service-aware": {
+        "p50": 0.04458399999566609,
+        "p95": 0.048707999994803686,
+        "p99": 0.051959000003989786,
+        "mean": 0.04613002049994248,
+        "max": 1.017958999997063
+      },
+      "MongoDB, normal index": {
+        "p50": 0.2204169999968144,
+        "p95": 0.2660420000029262,
+        "p99": 0.3013330000030692,
+        "mean": 0.2070648545000149,
+        "max": 1.6103339999972377
+      },
+      "MongoDB, service-aware index": {
+        "p50": 0.12524999999732245,
+        "p95": 0.13833400000294205,
+        "p99": 0.1479170000020531,
+        "mean": 0.1283224989999908,
+        "max": 1.308208000002196
+      }
+    },
+    "cost": {
+      "redisExtraBytes": 103576240,
+      "redisExtraKeys": 68648,
+      "mongoExtraIndexBytes": 59072512
+    },
+    "explain": {
+      "stop": "13248",
+      "normal": {
+        "keysExamined": 49,
+        "docsExamined": 49,
+        "returned": 10
+      },
+      "serviceAware": {
+        "keysExamined": 11,
+        "docsExamined": 10,
+        "returned": 10
+      }
+    }
+  }
+}

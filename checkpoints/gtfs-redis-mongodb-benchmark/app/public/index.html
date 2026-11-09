@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trip Planner</title>
+    <style>
+      :root {
+        --bg: #f5f6f8; --card: #fff; --text: #1b2230; --muted: #5f6b7d; --border: #dde1e7;
+        --accent: #0a62c2; --on-accent: #fff; --danger: #b42318; --soft: #eef3fa;
+        font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+        color: var(--text); background: var(--bg);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root { --bg: #11151b; --card: #1a1f27; --text: #e6e9ee; --muted: #9aa4b2; --border: #2b323d; --accent: #5aa6f5; --on-accent: #0b1220; --danger: #f97066; --soft: #1f2a38; }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); }
+      main { max-width: 820px; margin: 0 auto; padding: 28px 16px 48px; }
+      h1 { margin: 0; font-size: 1.6rem; }
+      h2 { font-size: 1rem; margin: 0 0 12px; }
+      .sub { color: var(--muted); margin: 4px 0 20px; font-size: 0.92rem; }
+      .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 16px; }
+      form { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: end; }
+      .when { grid-column: 1 / -1; display: flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+      label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+      input { width: 100%; padding: 9px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); font: inherit; }
+      .when > div { flex: 1 1 140px; }
+      button { padding: 9px 16px; border-radius: 8px; border: 1px solid var(--accent); background: var(--accent); color: var(--on-accent); font: inherit; cursor: pointer; }
+      button.ghost { background: transparent; color: var(--accent); }
+      .picker { position: relative; }
+      .suggestions { position: absolute; z-index: 5; left: 0; right: 0; top: 100%; margin: 4px 0 0; padding: 4px; list-style: none; background: var(--card); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 6px 20px rgb(0 0 0 / 0.12); }
+      .suggestions li { padding: 7px 8px; border-radius: 6px; cursor: pointer; }
+      .suggestions li:hover, .suggestions li.active { background: var(--soft); }
+      .suggestions:empty { display: none; }
+      .journey { border-top: 1px solid var(--border); padding: 12px 0; }
+      .journey:first-of-type { border-top: 0; padding-top: 0; }
+      .times { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+      .times strong { font-size: 1.15rem; }
+      .tag { font-size: 0.8rem; color: var(--muted); }
+      .leg { display: flex; gap: 10px; align-items: flex-start; margin-top: 8px; font-size: 0.92rem; }
+      .leg > span:last-child { flex: 1; min-width: 0; padding-top: 1px; }
+      .leg .route { flex: none; }
+      .route.walk { background: transparent; border: 1px dashed var(--border); color: var(--muted); font-weight: 500; }
+      .route { min-width: 34px; text-align: center; padding: 2px 8px; border-radius: 6px; font-weight: 600; font-size: 0.85rem; background: var(--soft); }
+      .board { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+      .board td { padding: 6px 4px; border-top: 1px solid var(--border); }
+      .board tr:first-child td { border-top: 0; }
+      .muted { color: var(--muted); }
+      .error { color: var(--danger); }
+      @media (max-width: 560px) {
+        form { grid-template-columns: 1fr; }
+        #swap { justify-self: start; }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Trip planner</h1>
+      <p class="sub" id="about">Loading…</p>
+
+      <section class="card">
+        <form id="form" autocomplete="off">
+          <div class="picker">
+            <label for="from">From</label>
+            <input id="from" placeholder="Type a stop name, e.g. Ocean" required />
+            <ul class="suggestions" id="from-list"></ul>
+          </div>
+          <button type="button" class="ghost" id="swap" title="Swap" aria-label="Swap from and to">⇄</button>
+          <div class="picker">
+            <label for="to">To</label>
+            <input id="to" placeholder="Type a stop name" required />
+            <ul class="suggestions" id="to-list"></ul>
+          </div>
+          <div class="when">
+            <div><label for="date">Date</label><input id="date" type="date" required /></div>
+            <div><label for="time">Leave after</label><input id="time" type="time" value="08:00" required /></div>
+            <button type="submit">Plan trip</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card" id="results" hidden>
+        <h2 id="results-title">Journeys</h2>
+        <div id="journeys"></div>
+      </section>
+
+      <section class="card" id="board-card" hidden>
+        <h2 id="board-title">Next departures</h2>
+        <table class="board"><tbody id="board"></tbody></table>
+      </section>
+    </main>
+
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const selected = { from: null, to: null };
+      const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+      async function api(url) {
+        const res = await fetch(url);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.message || `Error ${res.status}`);
+        return data;
+      }
+
+      // Route badge in the route's own GTFS colour, with readable text
+      function routeBadge(route) {
+        const hex = /^[0-9a-f]{6}$/i.test(route.color || '') ? route.color : null;
+        if (!hex) return `<span class="route">${esc(route.name)}</span>`;
+        const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+        const light = 0.299 * r + 0.587 * g + 0.114 * b > 150;
+        return `<span class="route" style="background:#${hex};color:${light ? '#111' : '#fff'}" title="${esc(route.long_name || '')}">${esc(route.name)}</span>`;
+      }
+
+      // Autocomplete: search as you type (150 ms pause), arrow keys + Enter to pick
+      function picker(key) {
+        const input = $(key);
+        const list = $(`${key}-list`);
+        let timer, items = [], active = -1;
+        const render = () => {
+          list.innerHTML = items.map((s, i) => `<li data-i="${i}" class="${i === active ? 'active' : ''}">${esc(s.name)} <span class="muted">#${esc(s.stop_id)}</span></li>`).join('');
+        };
+        const choose = (s) => {
+          selected[key] = s;
+          input.value = s.name;
+          items = [];
+          render();
+        };
+        input.addEventListener('input', () => {
+          selected[key] = null;
+          clearTimeout(timer);
+          timer = setTimeout(async () => {
+            const q = input.value.trim();
+            items = q.length < 2 ? [] : (await api(`/api/stops/search?q=${encodeURIComponent(q)}`)).stops;
+            active = -1;
+            render();
+          }, 150);
+        });
+        input.addEventListener('keydown', (e) => {
+          if (!items.length) return;
+          if (e.key === 'ArrowDown') { active = (active + 1) % items.length; render(); e.preventDefault(); }
+          if (e.key === 'ArrowUp') { active = (active - 1 + items.length) % items.length; render(); e.preventDefault(); }
+          if (e.key === 'Enter' && active >= 0) { choose(items[active]); e.preventDefault(); }
+          if (e.key === 'Escape') { items = []; render(); }
+        });
+        list.addEventListener('mousedown', (e) => {
+          const li = e.target.closest('li');
+          if (li) choose(items[Number(li.dataset.i)]);
+        });
+        input.addEventListener('blur', () => setTimeout(() => { items = []; render(); }, 150));
+        return choose;
+      }
+      const chooseFrom = picker('from');
+      const chooseTo = picker('to');
+
+      $('swap').addEventListener('click', () => {
+        const [a, b] = [selected.from, selected.to];
+        if (b) chooseFrom(b); else { $('from').value = ''; selected.from = null; }
+        if (a) chooseTo(a); else { $('to').value = ''; selected.to = null; }
+      });
+
+      async function showBoard(stop, date, time) {
+        const data = await api(`/api/departures/${encodeURIComponent(stop.stop_id)}?date=${date}&time=${time}`);
+        $('board-title').textContent = `Next departures from ${data.stop.name} (${data.ms} ms)`;
+        $('board').innerHTML = data.departures.length
+          ? data.departures.map((d) => `<tr><td><strong>${d.time}</strong></td><td>${routeBadge(d.route)}</td><td class="muted">${esc(d.route.long_name || '')}</td></tr>`).join('')
+          : '<tr><td class="muted">No more departures that day.</td></tr>';
+        $('board-card').hidden = false;
+      }
+
+      $('form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const date = $('date').value;
+        const time = $('time').value;
+        $('results').hidden = false;
+        if (!selected.from || !selected.to) {
+          $('results-title').textContent = 'Journeys';
+          $('journeys').innerHTML = '<p class="error">Pick both stops from the suggestion lists.</p>';
+          return;
+        }
+        $('journeys').innerHTML = '<p class="muted">Searching…</p>';
+        try {
+          const data = await api(`/api/plan?from=${encodeURIComponent(selected.from.stop_id)}&to=${encodeURIComponent(selected.to.stop_id)}&date=${date}&time=${time}`);
+          $('results-title').textContent = `Journeys from ${data.from.name} to ${data.to.name} (${data.ms} ms)`;
+          $('journeys').innerHTML = data.journeys.length
+            ? data.journeys
+                .map(
+                  (j) => `<div class="journey">
+                    <div class="times"><strong>${j.depart} → ${j.arrive}</strong><span class="tag">${j.minutes} min · ${j.transfers ? '1 change' : 'direct'}${j.legs.some((l) => l.walk) ? ' · short walk' : ''}</span></div>
+                    ${j.legs.map((l) => l.walk
+                      ? `<div class="leg"><span class="route walk">Walk</span><span>${l.metres} m (about ${l.minutes} min) to ${esc(l.to.name)}</span></div>`
+                      : `<div class="leg">${routeBadge(l.route)}<span>${l.depart} ${esc(l.from.name)} → ${l.arrive} ${esc(l.to.name)}</span></div>`).join('')}
+                  </div>`,
+                )
+                .join('')
+            : '<p class="muted">No journey found in the next 2 hours with at most one change. Try another time.</p>';
+          await showBoard(selected.from, date, time);
+        } catch (err) {
+          $('journeys').innerHTML = `<p class="error">${esc(err.message)}</p>`;
+        }
+      });
+
+      // Header + a sensible default date (today if the timetable covers it)
+      api('/api/info').then((info) => {
+        const fmt = (d) => `${d.slice(0, 4)}-${d.slice(4, 6)}-${d.slice(6, 8)}`;
+        const today = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+        const date = info.validFrom && (today < info.validFrom || today > info.validTo) ? info.validFrom : today;
+        $('date').value = fmt(date);
+        $('about').textContent = `${info.agency || info.feed}: ${info.counts.stops.toLocaleString()} stops, ${info.counts.stopTimes.toLocaleString()} scheduled stops · data in ${info.database}`;
+      });
+    </script>
+  </body>
+</html>
