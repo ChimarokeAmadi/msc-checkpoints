@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fixing a CV: 5 mistakes and how I corrected them</title>
+<style>
+  @page { size: A4; margin: 16mm 16mm 16mm 16mm; }
+  * { box-sizing: border-box; }
+  :root { --purple: #5b4aa8; --soft: #f1eefa; --text: #1f1f29; --muted: #5a5b6e; --bad: #b3261e; --bad-soft: #fbeceb; --ok: #23784a; --ok-soft: #e8f4ec; --line: #e2def0; }
+  body { font-family: -apple-system, 'Helvetica Neue', Arial, sans-serif; color: var(--text); font-size: 10.5pt; line-height: 1.5; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  h1 { font-size: 22pt; color: var(--purple); margin: 0 0 4px; line-height: 1.15; }
+  .sub { color: var(--muted); margin: 0 0 14px; }
+  h2 { font-size: 13.5pt; margin: 0 0 6px; display: flex; gap: 10px; align-items: baseline; }
+  h2 .n { background: var(--purple); color: #fff; border-radius: 50%; width: 24px; height: 24px; display: inline-grid; place-items: center; font-size: 10.5pt; flex: none; }
+  h3 { font-size: 11.5pt; color: var(--purple); margin: 18px 0 6px; }
+  p { margin: 0 0 8px; }
+  .intro { background: var(--soft); border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; }
+  .mistake { break-inside: avoid; margin: 0 0 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+  .box { border-radius: 8px; padding: 8px 12px; font-size: 9.8pt; }
+  .box b { display: block; font-size: 8pt; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 2px; }
+  .before { background: var(--bad-soft); }
+  .before b { color: var(--bad); }
+  .after { background: var(--ok-soft); }
+  .after b { color: var(--ok); }
+  .box p { margin: 0 0 4px; }
+  ul { margin: 4px 0 8px; padding-left: 18px; }
+  li { margin: 3px 0; }
+  .note { color: var(--muted); font-size: 9.5pt; }
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; break-inside: avoid; }
+  .compare figure { margin: 0; }
+  .compare img { width: 100%; border: 1px solid var(--line); border-radius: 6px; }
+  .compare figcaption { text-align: center; color: var(--muted); font-size: 9.5pt; margin-top: 4px; }
+  .page-break { break-before: page; }
+</style>
+</head>
+<body>
+  <h1>Fixing a CV: the 5 mistakes I found</h1>
+  <p class="sub">GoMyCode checkpoint · Career Strategies and Soft Skills · CV of “Keith Shannons”, Software Engineer · by Chimaroke Amadi</p>
+
+  <div class="intro">
+    <p>The CV looks nice at first: clean colours, clear sections, one page. But when I read it like a recruiter who has 10 seconds, I found 5 problems that would hurt Keith's chances. For each one I explain what is wrong, why it matters, and how I fixed it, with the text before and after. My corrected version is in <strong>Keith-Shannons-CV-corrected.pdf</strong>.</p>
+    <p class="note" style="margin:0">The original CV doesn't give the real numbers behind Keith's work, so the numbers in my version (95%, 12 projects, 25%…) are examples of the kind of figures he should write. On his real CV he would use his own real numbers. The 80% was already in the original.</p>
+  </div>
+
+  <section class="mistake">
+    <h2><span class="n">1</span> Vague achievements with no numbers</h2>
+    <p>Two of the three main bullet points use words like <em>“so many”</em> and <em>“a high rate”</em>. They don't tell the recruiter anything, because anyone can write them. The internship bullets are even weaker: <em>“Learned about the operations…”</em> describes what Keith was taught, not what he did. A good bullet shows a <strong>result</strong>, ideally with a number: <em>what I did, how, and what it changed</em>.</p>
+    <div class="pair">
+      <div class="box before"><b>Before</b>
+        <p>“Maintained so many customer satisfaction rating by developing and implementing software solutions based on client requirements”</p>
+        <p>“Boosted team efficiency by a high rate…”</p>
+        <p>“Learned about the operations of the company's software programming team”</p>
+      </div>
+      <div class="box after"><b>After</b>
+        <p>“Kept customer satisfaction above 95% across 12 client projects by designing and building software from each client's requirements.”</p>
+        <p>“Increased the team's delivery speed by 25% by leading code reviews and setting the technical direction for 3 business applications in development.”</p>
+        <p>“Built and tested 4 features for an internal tool with the programming team, using Git, pull requests and code reviews.”</p>
+      </div>
+    </div>
+    <p class="note" style="margin-top:6px">I also moved the strongest bullet (HR processes 80% faster) to the top, because recruiters read the first line the most.</p>
+  </section>
+
+  <section class="mistake">
+    <h2><span class="n">2</span> Grammar mistakes and things that aren't consistent</h2>
+    <p>Small errors make a CV look rushed, and for a software engineer, attention to detail is part of the job. I found:</p>
+    <ul>
+      <li><em>“Maintained so many customer satisfaction <u>rating</u>”</em>: it should be plural (“ratings”), and the sentence doesn't really make sense. You don't “maintain many ratings”.</li>
+      <li><em>“<u>Javascript</u>”</em> should be written <strong>JavaScript</strong>. Recruiters and ATS (the software that reads CVs) look for the exact name.</li>
+      <li>The dates use two styles: <em>“March 2022 to August 2025”</em> and <em>“Oct 2021 to Dec 2021”</em>. The extra durations “(3 years, 5 months)” take space and don't add much.</li>
+      <li>Labels like <em>“Institution:”</em> and <em>“Year of Graduation:”</em> are only used in the education part, while the jobs don't have labels.</li>
+    </ul>
+    <div class="pair">
+      <div class="box before"><b>Before</b><p>Javascript · March 2022 to August 2025 (3 years, 5 months) · Oct 2021 to Dec 2021 (3 months) · Institution: De Loureigh University · Year of Graduation: 2021</p></div>
+      <div class="box after"><b>After</b><p>JavaScript · Mar 2022 – Aug 2025 · Oct 2021 – Dec 2021 · De Loureigh University · Graduated 2021<br>One date style, placed on the right of every title.</p></div>
+    </div>
+  </section>
+
+  <section class="mistake">
+    <h2><span class="n">3</span> A broken LinkedIn link and weak contact details</h2>
+    <p>The LinkedIn address <em>“linkedin.com/in/Keith Shannons”</em> has a <strong>space</strong> and capital letters. A web address can't have a space, so if a recruiter clicks it or types it, it won't work. The email starts with “hello@”, which looks like a general company inbox, not a person. There's also no city, so the recruiter doesn't know if Keith is local or open to remote work.</p>
+    <div class="pair">
+      <div class="box before"><b>Before</b><p>linkedin.com/in/Keith Shannons<br>hello@reallygreatsite.com<br>(no location)</p></div>
+      <div class="box after"><b>After</b><p>linkedin.com/in/keith-shannons<br>keith.shannons@reallygreatsite.com<br>Roseton · open to remote</p></div>
+    </div>
+    <p class="note" style="margin-top:6px">I grouped all the contact details in one “Contact” block with small labels, so they are easy to find.</p>
+  </section>
+
+  <section class="mistake">
+    <h2><span class="n">4</span> No professional summary</h2>
+    <p>The CV jumps straight from the name to the job list. A recruiter has to read everything to understand who Keith is and what job he wants. A short summary of 2–3 sentences at the top answers three questions: <strong>who I am, what I'm good at (with one proof), and what I'm looking for</strong>.</p>
+    <div class="pair">
+      <div class="box before"><b>Before</b><p>Keith Shannons<br>Software Engineer<br>(then directly “Work Experience”)</p></div>
+      <div class="box after"><b>After</b><p>“Software engineer with 3+ years of experience building cloud-based business applications with JavaScript, Python and Java. I turn client requirements into reliable software and look for ways to remove manual work, like an HR system that made HR processes 80% faster. Looking for a software engineer role where I can own features from design to deployment.”</p></div>
+    </div>
+  </section>
+
+  <section class="mistake">
+    <h2><span class="n">5</span> A skills section that is too thin</h2>
+    <p>“Relevant skills” is only one line of 6 programming languages. It doesn't show any frameworks, databases, cloud or tools, but the job bullets talk about a <em>cloud-based system</em> and <em>databases and servers</em>. Many companies filter CVs with ATS keywords like “React”, “SQL”, “AWS” or “Git”, so this CV could be rejected before a person even reads it. There are also no soft skills, even though Keith coordinated departments and gave direction to a team.</p>
+    <div class="pair">
+      <div class="box before"><b>Before</b><p>Javascript, C/C++, Java, Python, Kotlin, Go</p></div>
+      <div class="box after"><b>After</b><p><strong>Languages:</strong> JavaScript, Python, Java, Go, Kotlin, C/C++<br><strong>Frameworks:</strong> Node.js, Express, React, Spring Boot<br><strong>Data &amp; cloud:</strong> SQL (PostgreSQL), MongoDB, AWS, Docker<br><strong>Ways of working:</strong> Git, REST APIs, code reviews, Agile/Scrum<br><strong>Soft skills:</strong> clear communication across teams, mentoring, problem solving</p></div>
+    </div>
+  </section>
+
+  <h3>Smaller things I also changed</h3>
+  <ul>
+    <li><strong>The photo:</strong> I removed it. In many countries recruiters prefer CVs without photos (to avoid bias), and ATS software can't read them. It also took the space where the summary now is.</li>
+    <li><strong>The layout:</strong> in the original, the right column is almost empty under the skills while the left column is crowded. I balanced the two columns and gave the side column a light background so it reads as “quick facts”.</li>
+    <li><strong>Decorative icons</strong> (the atom and the book) took space without adding information, so I removed them.</li>
+    <li>The job title <strong>“Intern”</strong> became <strong>“Software Engineering Intern”</strong>, and the job titles are no longer in capitals, which are harder to read.</li>
+  </ul>
+
+  <div class="page-break"></div>
+  <h3 style="margin-top:0">Before and after</h3>
+  <div class="compare">
+    <figure><img src="original-page.png" alt="The original CV"><figcaption>Before: the original CV</figcaption></figure>
+    <figure><img src="corrected-page.png" alt="My corrected CV"><figcaption>After: my corrected version</figcaption></figure>
+  </div>
+</body>
+</html>
