@@ -1,0 +1,62 @@
+
+=== PART 1: initial schema ===
+Loaded 200 products, 1000 users, 100000 orders (90 days, version 1 shape)
+
+Search "noise cancelling headphones":
+  Sonora Noise Cancelling Headphones (blue)        $78.99  score 19.64
+  Sonora Noise Cancelling Headphones (grey)        $252.99  score 19.64
+  Sonora Noise Cancelling Headphones (red)         $299.99  score 19.64
+  plan: FETCH > TEXT_MATCH product_search > FETCH > OR > IXSCAN product_search > IXSCAN product_search > IXSCAN product_search
+
+Browse "audio" by price: LIMIT > FETCH > IXSCAN status_1_categoryPath_1_priceCents_1, 20 documents read for 20 results
+"My orders": LIMIT > FETCH > IXSCAN customer.userId_1_createdAt_-1, 10 documents read out of 100000
+
+Order throughput (each order = 1 transaction: stock check + stock update + insert, w: majority):
+  Part 1: 3000 orders in 1.0 s = 3156 orders/second (64 at a time, 0 failed)
+
+=== PART 2: refactor ===
+Migrated 103000 orders to version 2, recomputed 91 days of sales summaries in 10.6 s
+  orders                 103000 documents
+  sales_daily_product     17312 documents
+  sales_daily_category      909 documents
+
+Top 5 products in October (from the daily summaries):
+  Northbook Gaming Laptop (white)                   815 sold  $1,977,996.85
+  Northbook Gaming Laptop (black)                   788 sold  $1,929,016.12
+  Northbook Ultrabook 13" (black)                   831 sold  $1,923,756.69
+  Corelite Ultrabook 13" (grey)                     765 sold  $1,838,287.35
+  Corelite Gaming Laptop (red)                      790 sold  $1,809,882.10
+
+"Sales per product in October": documents MongoDB has to read
+  from the raw orders:       54088 orders
+  from the daily summaries:   6200 product-day summaries
+  same answer: true
+
+"Units per category, Aug to Oct": documents MongoDB has to read
+  from the raw orders:       95003 orders
+  from the daily summaries:    899 category-day summaries
+
+Monthly trend per category (units sold):
+  category      2026-08 2026-09 2026-10
+  bags             3560   10290   15308
+  fitness          5039   21501   46575
+  furniture        3779   10240   15279
+  headphones       3527    9981   15354
+  kitchen          3346   10217   15440
+  laptops          3709   10363   15557
+  outdoor          5028   20983   46146
+  phones           3540   10304   15194
+  shoes            3518   10269   15225
+  speakers         3580   10140   15105
+
+Trending products (last 30 days, stored in each product):
+  Peakform Yoga Mat (blue)                         2394 sold
+  Trailmark Water Bottle (grey)                    2365 sold
+  Peakform Adjustable Dumbbells (white)            2358 sold
+  Peakform Adjustable Dumbbells (green)            2354 sold
+  Ironleaf Yoga Mat (white)                        2352 sold
+
+Order throughput after the refactor:
+  Part 2: 3000 orders in 1.0 s = 2918 orders/second (64 at a time, 0 failed)
+
+(One laptop running all 3 replica set members. A real cluster adds shards to add write capacity.)

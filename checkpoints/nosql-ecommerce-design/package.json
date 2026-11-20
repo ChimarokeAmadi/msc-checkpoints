@@ -1,0 +1,17 @@
+{
+  "name": "nosql-ecommerce-design",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "NoSQL (MongoDB) schema for an e-commerce app, then refactored for analytics, sharding and high availability.",
+  "scripts": {
+    "test": "node --test --test-concurrency=1 test/*.test.js",
+    "demo": "node scripts/demo.js"
+  },
+  "dependencies": {
+    "mongodb": "^7.9.1"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^11.3.0"
+  }
+}
