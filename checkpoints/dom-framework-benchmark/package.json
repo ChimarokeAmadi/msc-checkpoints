@@ -1,0 +1,18 @@
+{
+  "name": "dom-framework-benchmark",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "The same to-do app in React, Angular, Vue and Svelte, and a benchmark of their DOM operations.",
+  "scripts": {
+    "install:all": "npm install && npm --prefix apps/react install && npm --prefix apps/vue install && npm --prefix apps/svelte install && npm --prefix apps/angular install",
+    "build": "npm --prefix apps/react run build && npm --prefix apps/vue run build && npm --prefix apps/svelte run build && npm --prefix apps/angular run build",
+    "serve": "node benchmark/serve.js",
+    "test": "node benchmark/check.js",
+    "bench": "node benchmark/run.js",
+    "chart": "node benchmark/chart.js"
+  },
+  "devDependencies": {
+    "puppeteer-core": "^24.43.1"
+  }
+}

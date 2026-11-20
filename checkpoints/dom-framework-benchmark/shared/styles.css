@@ -1,0 +1,113 @@
+/* Same stylesheet for the four apps, so style and layout cost the same. */
+:root {
+  --bg: #f6f6f9;
+  --card: #ffffff;
+  --text: #1f1f29;
+  --muted: #62637a;
+  --line: #e3e3ec;
+  --accent: #4f46e5;
+  --low: #e7f5ec;
+  --low-text: #1d6b3f;
+  --medium: #fff4dc;
+  --medium-text: #8a5a00;
+  --high: #fde8e7;
+  --high-text: #a3261d;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #15151c;
+    --card: #1e1e28;
+    --text: #ececf3;
+    --muted: #a3a4b8;
+    --line: #2f2f3d;
+    --accent: #8b85ff;
+    --low: #173a26;
+    --low-text: #8fe0ad;
+    --medium: #3d3112;
+    --medium-text: #f3cf7a;
+    --high: #45201e;
+    --high-text: #ffb1aa;
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.45 -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+.app { max-width: 760px; margin: 0 auto; padding: 24px 16px 80px; }
+.app header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.app h1 { font-size: 24px; margin: 0; }
+.app h1 small { color: var(--accent); font-weight: 600; }
+.count { color: var(--muted); margin: 0; }
+
+.add, .bench, .task {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.add { display: flex; gap: 8px; padding: 12px; margin: 16px 0 10px; }
+.add input { flex: 1; min-width: 0; }
+input, select, button { font: inherit; color: inherit; }
+input, select {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 6px 9px;
+}
+button {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 7px;
+  padding: 6px 11px;
+  cursor: pointer;
+}
+button:hover { border-color: var(--accent); }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+.bench { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 10px 12px; margin-bottom: 16px; }
+.bench span { color: var(--muted); font-size: 13px; margin-right: 4px; }
+.bench button { font-size: 13px; padding: 4px 9px; }
+
+.tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.task { display: flex; align-items: center; gap: 10px; padding: 8px 10px; }
+.task .name { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.task form { display: flex; flex: 1; gap: 8px; flex-wrap: wrap; }
+.task form input { flex: 1; min-width: 140px; }
+.prio {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  border-radius: 999px;
+  padding: 2px 9px;
+  width: 74px;
+  text-align: center;
+  flex: none;
+}
+.prio-low { background: var(--low); color: var(--low-text); }
+.prio-medium { background: var(--medium); color: var(--medium-text); }
+.prio-high { background: var(--high); color: var(--high-text); }
+.empty { color: var(--muted); text-align: center; padding: 24px; }
+
+#bench-result {
+  position: fixed;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  background: var(--text);
+  color: var(--bg);
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-size: 13px;
+}
+#bench-result:empty { display: none; }
+
+@media (max-width: 520px) {
+  .add { flex-wrap: wrap; }
+  .add input { flex-basis: 100%; }
+  .task { flex-wrap: wrap; }
+}
